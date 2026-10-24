@@ -224,10 +224,10 @@ export default function VerifyPage() {
             STATUS 1: ASLI / TERVERIFIKASI
           </span>
           <span className="px-2.5 py-1 rounded bg-red-500/15 text-red-400 border border-red-500/30 font-semibold">
-            STATUS 2: PALSU / HASH MISMATCH
+            STATUS 2: PALSU / TERINDIKASI MAFIA TANAH
           </span>
           <span className="px-2.5 py-1 rounded bg-yellow-500/15 text-yellow-300 border border-yellow-500/30 font-semibold">
-            STATUS 3: DICABUT (REVOKED)
+            STATUS 3: DIBLOKIR / DALAM SENGKETA (DISPUTE)
           </span>
         </div>
       </div>
@@ -465,7 +465,7 @@ export default function VerifyPage() {
         <div className="p-8 rounded-2xl bg-gradient-to-br from-[#241304] to-surface border border-yellow-500/60 space-y-4">
           <div className="pb-4 border-b border-yellow-500/20">
             <span className="text-[11px] font-mono text-yellow-400 font-bold uppercase tracking-wider block">
-              STATUS: DIBATALKAN / DICABUT
+              STATUS: DIBLOKIR / DALAM SENGKETA (DISPUTE)
             </span>
             <h2 className="text-2xl font-bold text-white mt-0.5">
               {t('verify.status_revoked')}
@@ -477,7 +477,7 @@ export default function VerifyPage() {
           </p>
 
           <div className="p-4 rounded-xl bg-black/50 border border-yellow-500/30 text-xs font-mono space-y-1">
-            <div className="text-yellow-300 font-semibold">Detail Sertifikat yang Dicabut:</div>
+            <div className="text-yellow-300 font-semibold">Detail Sertifikat yang Diblokir:</div>
             <div className="text-gray-300">Pemilik: {result.owner_name || result.participant_name}</div>
             <div className="text-gray-300">Nomor: {result.certificate_number || '-'}</div>
             <div className="text-gray-400 break-all text-[11px]">Hash: {result.pdf_hash}</div>

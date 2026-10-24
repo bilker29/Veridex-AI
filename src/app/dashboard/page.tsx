@@ -43,11 +43,13 @@ export default function DashboardPage() {
   const [authError, setAuthError] = useState('');
 
   // Dashboard Registry Data State
-  const [registryName, setRegistryName] = useState('Kantor Pertanahan Jakarta Selatan - Batch 2026');
+  const [registryName, setRegistryName] = useState('Kantor Pertanahan & Notaris/PPAT Jakarta Selatan - Batch 2026');
   const [rawText, setRawText] = useState(
-    '1. Budi Santoso | NIK: 3201010101900001 | Jl. Sudirman No. 45, Kebayoran Baru, Jakarta Selatan | 500 m² | SHM\n' +
-    '2. Siti Aminah | NIK: 3201020202880003 | Jl. TB Simatupang No. 88, Cilandak, Jakarta Selatan | 720 m² | SHGB\n' +
-    '3. Hendra Wijaya | NIK: 3171030303920005 | Jl. Senopati No. 19, Kebayoran Baru, Jakarta Selatan | 350 m² | SHM'
+    'DRAF AKTA JUAL BELI (AJB) No. 04/PPAT/2026\n' +
+    '1. Pembeli: Budi Santoso | NIK: 3201010101900001 | Objek: Jl. Sudirman No. 45, Kebayoran Baru, Jakarta Selatan | Luas: 500 m² | Status Hak: SHM\n' +
+    '2. Pembeli: Siti Aminah | NIK: 3201020202880003 | Objek: Jl. TB Simatupang No. 88, Cilandak, Jakarta Selatan | Luas: 720 m² | Status Hak: SHGB\n' +
+    '3. Pembeli: Hendra Wijaya | NIK: 3171030303920005 | Objek: Jl. Senopati No. 19, Kebayoran Baru, Jakarta Selatan | Luas: 350 m² | Status Hak: SHM\n' +
+    '4. Pembeli: Maya Safitri | NIK: 3201030404950007 | Objek: Jl. Rasuna Said Kav. 8, Setiabudi, Jakarta Selatan | Luas: 420 m² | Status Hak: SHM'
   );
   const [isExtracting, setIsExtracting] = useState(false);
   const [assets, setAssets] = useState<LandAssetItem[]>([
@@ -260,8 +262,8 @@ export default function DashboardPage() {
   const handleRevoke = async (pdfHash: string) => {
     const confirmMsg =
       lang === 'id'
-        ? 'Apakah Anda yakin ingin membatalkan / mencabut (revoke) sertifikat tanah ini di smart contract Monad? Tindakan ini bersifat permanen dan akan ditandai palsu/batal pada verifikasi publik.'
-        : 'Are you sure you want to revoke this land certificate on Monad Testnet? This action is permanent and will flag the document as REVOKED.';
+        ? 'Apakah Anda yakin ingin mengaktifkan Blokir Sengketa (Revoke) sertifikat tanah ini di smart contract Monad? Dokumen ini akan ditandai SENGKETA/BATAL pada verifikasi publik.'
+        : 'Are you sure you want to trigger an on-chain Dispute Lock / Revoke on Monad Testnet? This action is permanent and flags the certificate as DISPUTED / REVOKED.';
 
     if (!confirm(confirmMsg)) return;
 
@@ -430,10 +432,11 @@ export default function DashboardPage() {
               type="button"
               onClick={() =>
                 setRawText(
-                  '1. Budi Santoso | NIK: 3201010101900001 | Jl. Sudirman No. 45, Kebayoran Baru, Jakarta Selatan | 500 m² | SHM\n' +
-                  '2. Siti Aminah | NIK: 3201020202880003 | Jl. TB Simatupang No. 88, Cilandak, Jakarta Selatan | 720 m² | SHGB\n' +
-                  '3. Hendra Wijaya | NIK: 3171030303920005 | Jl. Senopati No. 19, Kebayoran Baru, Jakarta Selatan | 350 m² | SHM\n' +
-                  '4. Maya Safitri | NIK: 3201030404950007 | Jl. Rasuna Said Kav. 8, Setiabudi, Jakarta Selatan | 420 m² | SHM'
+                  'DRAF AKTA JUAL BELI (AJB) No. 04/PPAT/2026\n' +
+                  '1. Pembeli: Budi Santoso | NIK: 3201010101900001 | Objek: Jl. Sudirman No. 45, Kebayoran Baru, Jakarta Selatan | Luas: 500 m² | Status Hak: SHM\n' +
+                  '2. Pembeli: Siti Aminah | NIK: 3201020202880003 | Objek: Jl. TB Simatupang No. 88, Cilandak, Jakarta Selatan | Luas: 720 m² | Status Hak: SHGB\n' +
+                  '3. Pembeli: Hendra Wijaya | NIK: 3171030303920005 | Objek: Jl. Senopati No. 19, Kebayoran Baru, Jakarta Selatan | Luas: 350 m² | Status Hak: SHM\n' +
+                  '4. Pembeli: Maya Safitri | NIK: 3201030404950007 | Objek: Jl. Rasuna Said Kav. 8, Setiabudi, Jakarta Selatan | Luas: 420 m² | Status Hak: SHM'
                 )
               }
               className="text-xs text-emerald-400 hover:text-emerald-300 font-mono transition-colors self-start sm:self-auto"
@@ -702,8 +705,8 @@ export default function DashboardPage() {
                           VALID
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 font-mono text-[10px] font-bold">
-                          DICABUT
+                        <span className="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 font-mono text-[10px] font-bold">
+                          DIBLOKIR / SENGKETA
                         </span>
                       )}
                     </td>
@@ -723,9 +726,9 @@ export default function DashboardPage() {
                           type="button"
                           onClick={() => handleRevoke(item.pdf_hash)}
                           disabled={revokingHash === item.pdf_hash}
-                          className="px-2.5 py-1 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 font-mono text-[11px] transition-colors disabled:opacity-50"
+                          className="px-2.5 py-1 rounded bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 font-mono text-[11px] transition-colors disabled:opacity-50"
                         >
-                          {revokingHash === item.pdf_hash ? 'Mencabut...' : 'Cabut'}
+                          {revokingHash === item.pdf_hash ? 'Memblokir...' : 'Blokir Sengketa'}
                         </button>
                       )}
                     </td>
