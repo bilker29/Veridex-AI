@@ -376,28 +376,28 @@ export default function DashboardPage() {
   // =========================================================================
   if (!isAuthorized) {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10">
         {/* Header Title */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-xs font-mono font-semibold uppercase tracking-wider">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-[10px] sm:text-xs font-mono font-semibold uppercase tracking-wider text-center">
             <span>PORTAL RESMI PENERBIT HAK ATAS TANAH (RWA ISSUER)</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight">
             {t('dash.auth_title')}
           </h1>
-          <p className="text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed px-1 sm:px-0">
             {t('dash.auth_desc')}
           </p>
         </div>
 
         {/* Quick Role Selection Cards (Developer, Notaris, BPN) */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs font-mono text-gray-400">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-gray-400 gap-1">
             <span>PILIH PROFIL PENERBIT RESMI (KLIK UNTUK DEMO):</span>
             <span className="text-emerald-400">OTENTIKASI TERENKRIPSI MONAD</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
             {ISSUER_PROFILES.map(p => {
               const isSelected = selectedProfile.id === p.id;
               return (
@@ -405,9 +405,9 @@ export default function DashboardPage() {
                   key={p.id}
                   type="button"
                   onClick={() => handleSelectProfile(p)}
-                  className={`p-5 rounded-2xl text-left border transition-all cursor-pointer relative flex flex-col justify-between space-y-4 ${
+                  className={`p-4 sm:p-5 rounded-2xl text-left border transition-all cursor-pointer relative flex flex-col justify-between space-y-4 ${
                     isSelected
-                      ? 'bg-gradient-to-b from-emerald-950/60 to-surface border-emerald-400 shadow-lg shadow-emerald-500/20 scale-[1.02]'
+                      ? 'bg-gradient-to-b from-emerald-950/60 to-surface border-emerald-400 shadow-lg shadow-emerald-500/20 scale-[1.01]'
                       : 'bg-surface-card hover:bg-surface-card-hover border-white/10 opacity-75 hover:opacity-100'
                   }`}
                 >
@@ -425,7 +425,7 @@ export default function DashboardPage() {
                     <p className="text-[11px] text-gray-400 leading-relaxed pt-1">{p.desc}</p>
                   </div>
 
-                  <div className="pt-2 border-t border-white/5 text-[10px] font-mono text-gray-400">
+                  <div className="pt-2 border-t border-white/5 text-[10px] font-mono text-gray-400 break-all">
                     ID: <span className="text-white">{p.email}</span>
                   </div>
                 </button>
@@ -435,14 +435,14 @@ export default function DashboardPage() {
         </div>
 
         {/* Security Login Card */}
-        <div className="max-w-md mx-auto p-7 rounded-2xl glass-panel border border-emerald-500/40 space-y-6 shadow-2xl">
+        <div className="max-w-md mx-auto p-5 sm:p-7 rounded-2xl glass-panel border border-emerald-500/40 space-y-5 sm:space-y-6 shadow-2xl">
           <div className="flex items-center space-x-3 pb-3 border-b border-white/10">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-lg">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-lg flex-shrink-0">
               🔐
             </div>
-            <div>
-              <div className="text-sm font-bold text-white">{selectedProfile.institution}</div>
-              <div className="text-[11px] text-gray-400 font-mono">Akses Petugas: {selectedProfile.name}</div>
+            <div className="min-w-0">
+              <div className="text-sm font-bold text-white truncate">{selectedProfile.institution}</div>
+              <div className="text-[11px] text-gray-400 font-mono truncate">Akses Petugas: {selectedProfile.name}</div>
             </div>
           </div>
 
@@ -508,21 +508,21 @@ export default function DashboardPage() {
   // VIEW 2: AUTHENTICATED COMMAND CENTER (When Logged In)
   // =========================================================================
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
       {/* Top Operations Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-6 rounded-2xl glass-panel border border-emerald-500/30">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 sm:p-6 rounded-2xl glass-panel border border-emerald-500/30">
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
             <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
               {selectedProfile.role} • TERVERIFIKASI
             </span>
-            <span className="text-gray-500 text-xs">•</span>
+            <span className="text-gray-500 text-xs hidden sm:inline">•</span>
             <span className="text-xs font-mono text-cyber-cyan bg-cyan-950/50 border border-cyan-500/30 px-2 py-0.5 rounded">
               Monad Testnet 10.000 TPS
             </span>
           </div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight break-words">
             {registryName}
           </h1>
           <p className="text-xs text-gray-400">
@@ -530,11 +530,11 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 self-start lg:self-auto">
+        <div className="flex items-center space-x-2 sm:space-x-3 w-full sm:w-auto justify-between sm:justify-start">
           <button
             type="button"
             onClick={fetchHistory}
-            className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-mono text-xs transition-colors"
+            className="flex-1 sm:flex-none text-center px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-mono text-xs transition-colors"
             title="Refresh Data"
           >
             ↻ Sinkronkan
@@ -542,7 +542,7 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={handleLogout}
-            className="px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-mono font-semibold transition-colors"
+            className="flex-1 sm:flex-none text-center px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-mono font-semibold transition-colors"
           >
             {t('dash.logout_btn')}
           </button>
@@ -550,37 +550,37 @@ export default function DashboardPage() {
       </div>
 
       {/* 4 Executive Stats / KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl glass-panel border border-white/10 space-y-1">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="p-3 sm:p-4 rounded-xl glass-panel border border-white/10 space-y-1">
           <div className="text-[10px] font-mono text-gray-400 uppercase">Sertifikat Terdaftar</div>
-          <div className="text-2xl font-bold font-mono text-emerald-400">{issuedHistory.length || 2} Unit</div>
+          <div className="text-lg sm:text-2xl font-bold font-mono text-emerald-400">{issuedHistory.length || 2} Unit</div>
           <div className="text-[10px] text-gray-500 font-mono">100% On-Chain Monad</div>
         </div>
-        <div className="p-4 rounded-xl glass-panel border border-white/10 space-y-1">
+        <div className="p-3 sm:p-4 rounded-xl glass-panel border border-white/10 space-y-1">
           <div className="text-[10px] font-mono text-gray-400 uppercase">Total Luas Lahan</div>
-          <div className="text-2xl font-bold font-mono text-cyber-cyan">850 m²</div>
+          <div className="text-lg sm:text-2xl font-bold font-mono text-cyber-cyan">850 m²</div>
           <div className="text-[10px] text-gray-500 font-mono">Wilayah Terproteksi</div>
         </div>
-        <div className="p-4 rounded-xl glass-panel border border-white/10 space-y-1">
+        <div className="p-3 sm:p-4 rounded-xl glass-panel border border-white/10 space-y-1">
           <div className="text-[10px] font-mono text-gray-400 uppercase">Estimasi Biaya Gas</div>
-          <div className="text-2xl font-bold font-mono text-emerald-400">&lt; Rp 2</div>
+          <div className="text-lg sm:text-2xl font-bold font-mono text-emerald-400">&lt; Rp 2</div>
           <div className="text-[10px] text-gray-500 font-mono">1 Tx Per Batch Merkle</div>
         </div>
-        <div className="p-4 rounded-xl glass-panel border border-white/10 space-y-1">
+        <div className="p-3 sm:p-4 rounded-xl glass-panel border border-white/10 space-y-1">
           <div className="text-[10px] font-mono text-gray-400 uppercase">Sengketa / Diblokir</div>
-          <div className="text-2xl font-bold font-mono text-yellow-400">
+          <div className="text-lg sm:text-2xl font-bold font-mono text-yellow-400">
             {issuedHistory.filter(h => h.status === 'REVOKED').length} Unit
           </div>
           <div className="text-[10px] text-gray-500 font-mono">On-Chain Dispute Lock</div>
         </div>
       </div>
 
-      {/* Main 3 Navigation Tabs */}
-      <div className="flex border-b border-white/10 space-x-2 text-xs font-mono">
+      {/* Main 3 Navigation Tabs with Smooth Horizontal Scroll on Mobile */}
+      <div className="flex border-b border-white/10 space-x-2 text-xs font-mono overflow-x-auto pb-px">
         <button
           type="button"
           onClick={() => setActiveTab('parser')}
-          className={`pb-3 px-4 font-bold border-b-2 transition-all flex items-center space-x-2 ${
+          className={`pb-3 px-3 sm:px-4 font-bold border-b-2 transition-all flex items-center space-x-2 whitespace-nowrap flex-shrink-0 ${
             activeTab === 'parser'
               ? 'border-emerald-400 text-emerald-400'
               : 'border-transparent text-gray-400 hover:text-white'
@@ -592,7 +592,7 @@ export default function DashboardPage() {
         <button
           type="button"
           onClick={() => setActiveTab('preview')}
-          className={`pb-3 px-4 font-bold border-b-2 transition-all flex items-center space-x-2 ${
+          className={`pb-3 px-3 sm:px-4 font-bold border-b-2 transition-all flex items-center space-x-2 whitespace-nowrap flex-shrink-0 ${
             activeTab === 'preview'
               ? 'border-emerald-400 text-emerald-400'
               : 'border-transparent text-gray-400 hover:text-white'
@@ -604,7 +604,7 @@ export default function DashboardPage() {
         <button
           type="button"
           onClick={() => setActiveTab('history')}
-          className={`pb-3 px-4 font-bold border-b-2 transition-all flex items-center space-x-2 ${
+          className={`pb-3 px-3 sm:px-4 font-bold border-b-2 transition-all flex items-center space-x-2 whitespace-nowrap flex-shrink-0 ${
             activeTab === 'history'
               ? 'border-emerald-400 text-emerald-400'
               : 'border-transparent text-gray-400 hover:text-white'
@@ -618,22 +618,22 @@ export default function DashboardPage() {
       {/* TAB 1: AI LEGAL PARSER (INGESTION OF AJB LEGAL DRAFTS) */}
       {/* =================================================================== */}
       {activeTab === 'parser' && (
-        <div className="p-8 rounded-2xl glass-panel border border-emerald-500/30 space-y-6">
+        <div className="p-4 sm:p-6 md:p-8 rounded-2xl glass-panel border border-emerald-500/30 space-y-5 sm:space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/5">
             <div>
               <div className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider">
                 STEP 1: ANTI-HUMAN ERROR
               </div>
-              <h2 className="text-xl font-bold text-white mt-0.5">
+              <h2 className="text-lg sm:text-xl font-bold text-white mt-0.5">
                 {t('dash.ingest_title')}
               </h2>
-              <p className="text-xs text-gray-400 mt-1 max-w-2xl">
+              <p className="text-xs text-gray-400 mt-1 max-w-2xl leading-relaxed">
                 {t('dash.ingest_desc')}
               </p>
             </div>
 
             {/* Quick Template Buttons */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2">
               <button
                 type="button"
                 onClick={() =>
@@ -645,7 +645,7 @@ export default function DashboardPage() {
                     '4. Pembeli: Maya Safitri | NIK: 3201030404950007 | Objek: Jl. Rasuna Said Kav. 8, Setiabudi, Jakarta Selatan | Luas: 420 m² | Status Hak: SHM'
                   )
                 }
-                className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-mono transition-colors"
+                className="w-full sm:w-auto text-center px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-mono transition-colors"
               >
                 + Template AJB Notaris
               </button>
@@ -660,7 +660,7 @@ export default function DashboardPage() {
                     'Kavling A-03 | Pemilik: Bambang Prakoso | NIK: 3273030303890006 | Jl. Raya Cilandak Kav. 03 | Luas: 450 m² | Hak: SHM'
                   )
                 }
-                className="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-mono transition-colors"
+                className="w-full sm:w-auto text-center px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-mono transition-colors"
               >
                 + Template Kavling Developer
               </button>
@@ -676,12 +676,12 @@ export default function DashboardPage() {
               value={rawText}
               onChange={e => setRawText(e.target.value)}
               placeholder="Ketik atau tempel draf Akta Jual Beli (AJB)..."
-              className="w-full p-4 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-emerald-500 leading-relaxed"
+              className="w-full p-3 sm:p-4 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-emerald-500 leading-relaxed"
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-            <div className="text-[11px] text-gray-400 font-mono">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
+            <div className="text-[11px] text-gray-400 font-mono leading-relaxed">
               AI akan otomatis memisahkan Nama, NIK, Lokasi, Luas m², dan Jenis Hak tanpa perlu pengetikan ulang manual.
             </div>
 
@@ -689,7 +689,7 @@ export default function DashboardPage() {
               type="button"
               onClick={handleExtract}
               disabled={isExtracting || !rawText.trim()}
-              className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono uppercase tracking-wider transition-all disabled:opacity-50 shadow-md shadow-emerald-500/20 cursor-pointer self-end sm:self-auto"
+              className="w-full sm:w-auto text-center px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono uppercase tracking-wider transition-all disabled:opacity-50 shadow-md shadow-emerald-500/20 cursor-pointer"
             >
               {isExtracting ? t('dash.extracting_btn') : t('dash.extract_btn')}
             </button>
@@ -701,13 +701,13 @@ export default function DashboardPage() {
       {/* TAB 2: DATA PREVIEW & BATCH ISSUANCE TO MONAD */}
       {/* =================================================================== */}
       {activeTab === 'preview' && (
-        <div className="p-8 rounded-2xl glass-panel border border-emerald-500/30 space-y-6">
+        <div className="p-4 sm:p-6 md:p-8 rounded-2xl glass-panel border border-emerald-500/30 space-y-5 sm:space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/5">
             <div>
               <div className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider">
                 STEP 2: VALIDASI &amp; PENERBITAN MASSAL
               </div>
-              <h2 className="text-xl font-bold text-white mt-0.5">
+              <h2 className="text-lg sm:text-xl font-bold text-white mt-0.5">
                 {t('dash.preview_title')}
               </h2>
               <p className="text-xs text-gray-400 mt-1">
@@ -715,11 +715,11 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={handleAddRow}
-                className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-mono text-xs border border-white/10 transition-colors"
+                className="w-full sm:w-auto text-center px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-mono text-xs border border-white/10 transition-colors"
               >
                 + {t('dash.add_row_btn')}
               </button>
@@ -727,16 +727,22 @@ export default function DashboardPage() {
                 type="button"
                 onClick={handleIssueCertificates}
                 disabled={isIssuing || assets.length === 0}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:brightness-110 text-white font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-md shadow-emerald-500/25 disabled:opacity-50 cursor-pointer"
+                className="w-full sm:w-auto text-center px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:brightness-110 text-white font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-md shadow-emerald-500/25 disabled:opacity-50 cursor-pointer"
               >
                 {isIssuing ? t('dash.issuing_btn') : t('dash.issue_btn')}
               </button>
             </div>
           </div>
 
+          {/* Mobile Table Scroll Helper */}
+          <div className="text-[11px] text-gray-400 font-mono sm:hidden flex items-center space-x-1.5">
+            <span>⇄</span>
+            <span>Geser tabel ke samping untuk melihat &amp; mengedit semua kolom</span>
+          </div>
+
           {/* Land Assets Table */}
           <div className="overflow-x-auto rounded-xl border border-white/10">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[680px]">
               <thead className="bg-black/60 text-gray-400 font-mono uppercase text-[10px] border-b border-white/10">
                 <tr>
                   <th className="py-3 px-3.5">Nama Pemilik Tanah</th>
@@ -816,7 +822,7 @@ export default function DashboardPage() {
 
           {/* Issuance Live Pipeline Progress Indicator */}
           {isIssuing && (
-            <div className="p-6 rounded-2xl bg-black/80 border border-emerald-500/50 space-y-4">
+            <div className="p-4 sm:p-6 rounded-2xl bg-black/80 border border-emerald-500/50 space-y-4">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-spin"></span>
                 <h4 className="font-bold text-white text-sm font-mono">
@@ -824,19 +830,19 @@ export default function DashboardPage() {
                 </h4>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-[11px] font-mono">
-                <div className={`p-3 rounded-lg border ${issueStep >= 1 ? 'border-emerald-400 bg-emerald-950/50 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
+                <div className={`p-2.5 sm:p-3 rounded-lg border ${issueStep >= 1 ? 'border-emerald-400 bg-emerald-950/50 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
                   1. Validasi Pemilik
                 </div>
-                <div className={`p-3 rounded-lg border ${issueStep >= 2 ? 'border-emerald-400 bg-emerald-950/50 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
+                <div className={`p-2.5 sm:p-3 rounded-lg border ${issueStep >= 2 ? 'border-emerald-400 bg-emerald-950/50 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
                   2. Render PDF Deterministik
                 </div>
-                <div className={`p-3 rounded-lg border ${issueStep >= 3 ? 'border-emerald-400 bg-emerald-950/50 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
+                <div className={`p-2.5 sm:p-3 rounded-lg border ${issueStep >= 3 ? 'border-emerald-400 bg-emerald-950/50 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
                   3. Hash SHA-256 Biner
                 </div>
-                <div className={`p-3 rounded-lg border ${issueStep >= 4 ? 'border-emerald-400 bg-emerald-950/50 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
+                <div className={`p-2.5 sm:p-3 rounded-lg border ${issueStep >= 4 ? 'border-emerald-400 bg-emerald-950/50 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
                   4. Merkle Tree Batch
                 </div>
-                <div className={`p-3 rounded-lg border ${issueStep >= 5 ? 'border-emerald-400 bg-emerald-950/50 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
+                <div className={`p-2.5 sm:p-3 rounded-lg border ${issueStep >= 5 ? 'border-emerald-400 bg-emerald-950/50 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
                   5. Monad On-Chain Tx
                 </div>
               </div>
@@ -845,7 +851,7 @@ export default function DashboardPage() {
 
           {/* Issuance Success Result Modal/Card */}
           {issueResult && (
-            <div className="p-6 rounded-2xl bg-emerald-950/40 border border-emerald-500/60 space-y-4">
+            <div className="p-4 sm:p-6 rounded-2xl bg-emerald-950/40 border border-emerald-500/60 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-emerald-500/30">
                 <span className="text-xs font-mono font-bold text-emerald-400 flex items-center space-x-2">
                   <span>✔</span>
@@ -878,12 +884,12 @@ export default function DashboardPage() {
                 <div className="text-xs font-semibold text-white mb-2 font-mono">
                   Unduh Sertifikat Tanah Hasil Penerbitan:
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col sm:flex-row flex-wrap gap-2">
                   {issueResult.assets.map((asset) => (
                     <a
                       key={asset.pdf_hash}
                       href={asset.download_url}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-mono transition-colors"
+                      className="w-full sm:w-auto text-center px-3 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-mono transition-colors"
                     >
                       📄 {asset.owner_name} ({asset.land_type})
                     </a>
@@ -899,13 +905,13 @@ export default function DashboardPage() {
       {/* TAB 3: AUDIT HISTORY & ON-CHAIN DISPUTE LOCK (REVOCATION) */}
       {/* =================================================================== */}
       {activeTab === 'history' && (
-        <div className="p-8 rounded-2xl glass-panel border border-emerald-500/20 space-y-6">
+        <div className="p-4 sm:p-6 md:p-8 rounded-2xl glass-panel border border-emerald-500/20 space-y-5 sm:space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/5">
             <div>
               <div className="text-[10px] font-mono font-bold text-yellow-400 uppercase tracking-wider">
                 STEP 3: AUDIT &amp; FITUR BLOKIR SENGKETA
               </div>
-              <h2 className="text-xl font-bold text-white mt-0.5">
+              <h2 className="text-lg sm:text-xl font-bold text-white mt-0.5">
                 {t('dash.history_title')}
               </h2>
               <p className="text-xs text-gray-400 mt-1">
@@ -919,8 +925,14 @@ export default function DashboardPage() {
               value={historySearch}
               onChange={e => setHistorySearch(e.target.value)}
               placeholder="Cari pemilik, NIK, atau no. sertifikat..."
-              className="px-3.5 py-2 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-emerald-500 w-full sm:w-72"
+              className="px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-emerald-500 w-full sm:w-72"
             />
+          </div>
+
+          {/* Mobile Table Scroll Helper */}
+          <div className="text-[11px] text-gray-400 font-mono sm:hidden flex items-center space-x-1.5">
+            <span>⇄</span>
+            <span>Geser tabel ke samping untuk melihat detail &amp; aksi blokir</span>
           </div>
 
           {historyLoading ? (
@@ -933,7 +945,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-white/10">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[760px]">
                 <thead className="bg-black/60 text-gray-400 font-mono uppercase text-[10px] border-b border-white/10">
                   <tr>
                     <th className="py-3 px-3.5">Pemilik &amp; NIK</th>
@@ -975,7 +987,7 @@ export default function DashboardPage() {
                       <td className="py-3 px-3.5 font-mono text-[11px] text-gray-400">
                         {item.pdf_hash ? `${item.pdf_hash.substring(0, 10)}...${item.pdf_hash.substring(58)}` : '-'}
                       </td>
-                      <td className="py-3 px-3.5 text-right space-x-2">
+                      <td className="py-3 px-3.5 text-right space-x-2 whitespace-nowrap">
                         <a
                           href={item.download_url || `/api/certificates/${item.pdf_hash}`}
                           className="inline-block px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-emerald-300 font-mono text-xs transition-colors"

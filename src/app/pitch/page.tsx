@@ -235,21 +235,21 @@ export default function PitchDeckPage() {
   }, [slides.length]);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-4 sm:space-y-6">
       {/* Slide Navigation Header */}
-      <div className="flex items-center justify-between text-xs font-mono text-gray-400 border-b border-white/5 pb-4">
+      <div className="flex items-center justify-between text-xs font-mono text-gray-400 border-b border-white/5 pb-3 sm:pb-4">
         <div className="flex items-center space-x-2">
-          <Presentation className="w-4 h-4 text-cyber-cyan" />
-          <span className="text-white font-bold">VERIDEX PITCH DECK</span>
+          <Presentation className="w-4 h-4 text-cyber-cyan flex-shrink-0" />
+          <span className="text-white font-bold text-[11px] sm:text-xs">VERIDEX PITCH DECK</span>
         </div>
-        <div className="flex items-center space-x-3">
-          <span>SLIDE {currentSlide + 1} OF {slides.length}</span>
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <span className="text-[10px] sm:text-xs">SLIDE {currentSlide + 1} OF {slides.length}</span>
           <div className="flex items-center space-x-1">
             <button
               type="button"
               onClick={() => setCurrentSlide((prev) => Math.max(prev - 1, 0))}
               disabled={currentSlide === 0}
-              className="p-1 rounded bg-white/5 hover:bg-white/10 disabled:opacity-30"
+              className="p-1 rounded bg-white/5 hover:bg-white/10 disabled:opacity-30 cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -257,7 +257,7 @@ export default function PitchDeckPage() {
               type="button"
               onClick={() => setCurrentSlide((prev) => Math.min(prev + 1, slides.length - 1))}
               disabled={currentSlide === slides.length - 1}
-              className="p-1 rounded bg-white/5 hover:bg-white/10 disabled:opacity-30"
+              className="p-1 rounded bg-white/5 hover:bg-white/10 disabled:opacity-30 cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -266,36 +266,36 @@ export default function PitchDeckPage() {
       </div>
 
       {/* Main Slide Card */}
-      <div className="min-h-[460px] p-8 sm:p-12 rounded-3xl glass-panel border border-monad-500/30 flex flex-col justify-between glow-purple relative overflow-hidden">
+      <div className="min-h-[420px] sm:min-h-[460px] p-5 sm:p-8 md:p-12 rounded-2xl sm:rounded-3xl glass-panel border border-monad-500/30 flex flex-col justify-between glow-purple relative overflow-hidden">
         <div>
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-monad-900/60 border border-monad-500/30 text-cyber-cyan text-xs font-mono mb-4">
-            <Flame className="w-3.5 h-3.5" />
+            <Flame className="w-3.5 h-3.5 flex-shrink-0" />
             <span>{current.badge}</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight">
             {current.title}
           </h2>
-          <p className="text-sm sm:text-base text-gray-400 mt-1 font-mono">
+          <p className="text-xs sm:text-sm md:text-base text-gray-400 mt-1 font-mono leading-relaxed">
             {current.subtitle}
           </p>
 
-          <div className="mt-8">{current.content}</div>
+          <div className="mt-5 sm:mt-8">{current.content}</div>
         </div>
 
         {/* Slide Progress Dots */}
-        <div className="pt-8 flex items-center justify-between border-t border-white/5 text-xs text-gray-500">
-          <span className="font-mono text-[11px]">Use ← / → keys to navigate</span>
+        <div className="pt-6 sm:pt-8 flex flex-col-reverse sm:flex-row items-center justify-between gap-3 border-t border-white/5 text-xs text-gray-500">
+          <span className="font-mono text-[10px] sm:text-[11px]">Use ← / → keys to navigate</span>
           <div className="flex items-center space-x-2">
             {slides.map((s, idx) => (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => setCurrentSlide(idx)}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${
+                className={`h-2.5 rounded-full transition-all cursor-pointer ${
                   idx === currentSlide
                     ? 'w-6 bg-cyber-cyan'
-                    : 'bg-white/20 hover:bg-white/40'
+                    : 'w-2.5 bg-white/20 hover:bg-white/40'
                 }`}
               />
             ))}

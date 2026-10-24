@@ -205,42 +205,42 @@ export default function VerifyPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10">
       {/* Header */}
       <div className="text-center space-y-3">
-        <span className="text-[11px] font-mono text-emerald-400 uppercase tracking-widest bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full">
+        <span className="text-[10px] sm:text-[11px] font-mono text-emerald-400 uppercase tracking-widest bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full">
           {t('verify.badge')}
         </span>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
           {t('verify.title')}
         </h1>
-        <p className="text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xs sm:text-sm text-gray-300 max-w-2xl mx-auto leading-relaxed px-1 sm:px-0">
           {t('verify.desc')}
         </p>
 
         {/* 3 Status Summary */}
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs font-mono">
-          <span className="px-2.5 py-1 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold">
+        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-2 text-[10px] sm:text-xs font-mono">
+          <span className="px-2 sm:px-2.5 py-1 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold text-center">
             STATUS 1: ASLI / TERVERIFIKASI
           </span>
-          <span className="px-2.5 py-1 rounded bg-red-500/15 text-red-400 border border-red-500/30 font-semibold">
+          <span className="px-2 sm:px-2.5 py-1 rounded bg-red-500/15 text-red-400 border border-red-500/30 font-semibold text-center">
             STATUS 2: PALSU / TERINDIKASI MAFIA TANAH
           </span>
-          <span className="px-2.5 py-1 rounded bg-yellow-500/15 text-yellow-300 border border-yellow-500/30 font-semibold">
-            STATUS 3: DIBLOKIR / DALAM SENGKETA (DISPUTE)
+          <span className="px-2 sm:px-2.5 py-1 rounded bg-yellow-500/15 text-yellow-300 border border-yellow-500/30 font-semibold text-center">
+            STATUS 3: DIBLOKIR / DALAM SENGKETA
           </span>
         </div>
       </div>
 
       {/* Verification Inputs: 1) File Dropzone + 2) Text Search Input */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Dropzone Container */}
         <div
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
-          className={`relative p-10 sm:p-12 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center text-center cursor-pointer ${
+          className={`relative p-6 sm:p-10 md:p-12 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center text-center cursor-pointer ${
             dragActive
               ? 'border-emerald-400 bg-emerald-500/10 scale-[1.01]'
               : 'border-emerald-500/30 hover:border-emerald-500/60 bg-surface-card hover:bg-surface-card-hover'
@@ -257,20 +257,20 @@ export default function VerifyPage() {
             📄
           </div>
 
-          <h3 className="text-lg font-bold text-white">
+          <h3 className="text-base sm:text-lg font-bold text-white">
             {t('verify.dropzone_title')}
           </h3>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-gray-400 mt-1 max-w-sm">
             {t('verify.dropzone_sub')}
           </p>
 
-          <div className="mt-5 text-[11px] text-gray-400 font-mono bg-black/40 px-3.5 py-1.5 rounded-lg border border-white/5">
+          <div className="mt-4 sm:mt-5 text-[10px] sm:text-[11px] text-gray-400 font-mono bg-black/40 px-3 py-1.5 rounded-lg border border-white/5 text-center leading-normal">
             {t('verify.privacy_notice')}
           </div>
         </div>
 
         {/* Or Search by Certificate Number / Hash / NIK */}
-        <div className="p-5 rounded-2xl glass-panel border border-white/10 space-y-3">
+        <div className="p-4 sm:p-5 rounded-2xl glass-panel border border-white/10 space-y-3">
           <label className="text-xs font-semibold text-gray-300 block">
             {lang === 'id' ? 'Atau Verifikasi via Nomor Sertifikat / NIK / Hash Dokumen:' : 'Or Verify via Certificate Number / NIK / Document Hash:'}
           </label>
@@ -280,12 +280,12 @@ export default function VerifyPage() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Contoh: SHM-01234/KB atau 3201010101900001 atau 0x6a214a..."
-              className="flex-1 px-4 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white placeholder-gray-500 text-xs font-mono focus:outline-none focus:border-emerald-500 transition-colors"
+              className="flex-1 w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white placeholder-gray-500 text-xs font-mono focus:outline-none focus:border-emerald-500 transition-colors"
             />
             <button
               type="submit"
               disabled={isVerifying || !searchQuery.trim()}
-              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono transition-all disabled:opacity-50"
+              className="w-full sm:w-auto text-center px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono transition-all disabled:opacity-50 cursor-pointer"
             >
               {lang === 'id' ? 'Cek Keaslian' : 'Check Authenticity'}
             </button>
@@ -293,30 +293,30 @@ export default function VerifyPage() {
         </div>
 
         {/* Quick Testing Bar */}
-        <div className="p-4 rounded-xl bg-black/40 border border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <span className="text-gray-400 font-semibold font-mono">
+        <div className="p-4 rounded-xl bg-black/40 border border-white/5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
+          <span className="text-gray-400 font-semibold font-mono text-center sm:text-left">
             {t('verify.qa_title')}
           </span>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2">
             <button
               type="button"
               onClick={() => handleTestHash(SAMPLE_VALID_HASH)}
-              className="px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 font-mono text-[11px] transition-colors"
+              className="w-full sm:w-auto text-center px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 font-mono text-[11px] transition-colors"
             >
               {t('verify.qa_valid_btn')}
             </button>
             <button
               type="button"
               onClick={() => handleTestHash('SHM-01234/KB')}
-              className="px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 font-mono text-[11px] transition-colors"
+              className="w-full sm:w-auto text-center px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 font-mono text-[11px] transition-colors"
             >
               Uji No. Sertifikat (SHM)
             </button>
             <button
               type="button"
               onClick={() => handleTestHash(SAMPLE_FORGED_HASH)}
-              className="px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 font-mono text-[11px] transition-colors"
+              className="w-full sm:w-auto text-center px-3 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 font-mono text-[11px] transition-colors"
             >
               {t('verify.qa_forged_btn')}
             </button>
@@ -339,13 +339,13 @@ export default function VerifyPage() {
 
       {/* RESULT 1: VALID */}
       {result && result.status === 'VERIFIED' && (
-        <div className="p-8 rounded-2xl bg-gradient-to-br from-[#061812] via-surface to-[#04120D] border border-emerald-500/60 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-emerald-500/20">
+        <div className="p-5 sm:p-8 rounded-2xl bg-gradient-to-br from-[#061812] via-surface to-[#04120D] border border-emerald-500/60 space-y-5 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-emerald-500/20">
             <div>
-              <span className="text-[11px] font-mono text-emerald-400 font-bold uppercase tracking-wider block">
+              <span className="text-[10px] sm:text-[11px] font-mono text-emerald-400 font-bold uppercase tracking-wider block">
                 STATUS: TERVERIFIKASI ASLI
               </span>
-              <h2 className="text-2xl font-bold text-white mt-0.5">
+              <h2 className="text-xl sm:text-2xl font-bold text-white mt-0.5">
                 {t('verify.status_valid')}
               </h2>
             </div>
@@ -355,7 +355,7 @@ export default function VerifyPage() {
           </div>
 
           {/* Land Certificate Specifications */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs">
             <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-1">
               <span className="text-[10px] font-mono text-gray-500 uppercase">Nama Pemilik Tanah:</span>
               <div className="text-base font-bold text-white">{result.owner_name || result.participant_name}</div>
@@ -364,7 +364,7 @@ export default function VerifyPage() {
 
             <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-1">
               <span className="text-[10px] font-mono text-gray-500 uppercase">Jenis &amp; No. Sertifikat:</span>
-              <div className="text-base font-bold text-emerald-400 font-mono">
+              <div className="text-base font-bold text-emerald-400 font-mono break-words">
                 {result.land_type || 'SHM'} — {result.certificate_number || 'SHM-01234/KB'}
               </div>
               <div className="text-gray-400 font-mono">Serial: {result.serial_number || 'VRX-LAND-0001'}</div>
@@ -386,7 +386,7 @@ export default function VerifyPage() {
           {/* Cryptographic Proof Details */}
           <div className="p-4 rounded-xl bg-black/50 border border-emerald-500/20 space-y-2 font-mono text-xs">
             <div className="text-emerald-300 font-semibold">Bukti Kriptografis Blockchain:</div>
-            <div className="space-y-1 text-[11px] text-gray-300">
+            <div className="space-y-1.5 text-[11px] text-gray-300">
               <div>
                 <span className="text-gray-500 block">Hash SHA-256 Dokumen:</span>
                 <span className="text-white break-all">{computedHash || result.pdf_hash}</span>
@@ -410,16 +410,16 @@ export default function VerifyPage() {
           </div>
 
           {/* Download & Tamper Test Action Buttons */}
-          <div className="pt-2 flex flex-wrap gap-3">
+          <div className="pt-2 flex flex-col sm:flex-row flex-wrap gap-2.5 sm:gap-3">
             <a
               href={result.download_url || `/api/certificates/${result.pdf_hash}`}
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono transition-all shadow-md shadow-emerald-500/20"
+              className="w-full sm:w-auto text-center px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold font-mono transition-all shadow-md shadow-emerald-500/20"
             >
               Unduh Sertifikat PDF Resmi
             </a>
             <a
               href={result.tampered_download_url || `/api/certificates/${result.pdf_hash}/tampered`}
-              className="px-4 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 text-red-300 text-xs font-semibold font-mono transition-all"
+              className="w-full sm:w-auto text-center px-4 py-2.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 text-red-300 text-xs font-semibold font-mono transition-all"
             >
               Uji Deteksi: Unduh Versi Rekayasa
             </a>
@@ -429,17 +429,17 @@ export default function VerifyPage() {
 
       {/* RESULT 2: FORGED */}
       {result && result.status === 'FORGED' && (
-        <div className="p-8 rounded-2xl bg-gradient-to-br from-[#1c0808] to-surface border border-red-500/60 space-y-6">
-          <div className="pb-5 border-b border-red-500/20">
-            <span className="text-[11px] font-mono text-red-400 font-bold uppercase tracking-wider block">
+        <div className="p-5 sm:p-8 rounded-2xl bg-gradient-to-br from-[#1c0808] to-surface border border-red-500/60 space-y-5 sm:space-y-6">
+          <div className="pb-4 border-b border-red-500/20">
+            <span className="text-[10px] sm:text-[11px] font-mono text-red-400 font-bold uppercase tracking-wider block">
               STATUS: GAGAL / TERINDIKASI PALSU
             </span>
-            <h2 className="text-2xl font-bold text-white mt-0.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mt-0.5">
               {t('verify.status_forged')}
             </h2>
           </div>
 
-          <p className="text-sm text-gray-200 leading-relaxed">
+          <p className="text-xs sm:text-sm text-gray-200 leading-relaxed">
             {t('verify.status_forged_desc')}
           </p>
 
@@ -462,17 +462,17 @@ export default function VerifyPage() {
 
       {/* RESULT 3: REVOKED */}
       {result && result.status === 'REVOKED' && (
-        <div className="p-8 rounded-2xl bg-gradient-to-br from-[#241304] to-surface border border-yellow-500/60 space-y-4">
+        <div className="p-5 sm:p-8 rounded-2xl bg-gradient-to-br from-[#241304] to-surface border border-yellow-500/60 space-y-4">
           <div className="pb-4 border-b border-yellow-500/20">
-            <span className="text-[11px] font-mono text-yellow-400 font-bold uppercase tracking-wider block">
+            <span className="text-[10px] sm:text-[11px] font-mono text-yellow-400 font-bold uppercase tracking-wider block">
               STATUS: DIBLOKIR / DALAM SENGKETA (DISPUTE)
             </span>
-            <h2 className="text-2xl font-bold text-white mt-0.5">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mt-0.5">
               {t('verify.status_revoked')}
             </h2>
           </div>
 
-          <p className="text-sm text-gray-300 leading-relaxed">
+          <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
             {t('verify.status_revoked_desc')}
           </p>
 

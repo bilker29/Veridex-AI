@@ -3,11 +3,11 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="w-full border-t border-monad-500/15 bg-[#06080D] py-12 text-gray-400 text-sm">
+    <footer className="w-full border-t border-monad-500/15 bg-[#06080D] py-8 sm:py-12 text-gray-400 text-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
           {/* Col 1 */}
-          <div className="space-y-3 md:col-span-1">
+          <div className="space-y-3 sm:col-span-2 md:col-span-1">
             <span className="font-bold text-white tracking-wide text-base">VERIDEX</span>
             <p className="text-xs text-gray-400 leading-relaxed">
               Tokenisasi Tanah RWA. Penerbitan Kecepatan Tinggi. Bukti Anti-Pemalsuan. Protokol sertifikat tanah berbasis Merkle Tree di Monad Testnet.
@@ -62,9 +62,9 @@ export default function Footer() {
           </div>
 
           {/* Col 4 */}
-          <div className="space-y-2">
+          <div className="space-y-2 sm:col-span-2 md:col-span-1">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-white">Arsitektur Kriptografis</h4>
-            <div className="p-3 rounded-xl bg-surface-card border border-white/5 space-y-1 text-xs">
+            <div className="p-3.5 rounded-xl bg-surface-card border border-white/5 space-y-1 text-xs">
               <span className="font-mono text-[11px] text-monad-300">VeridexRegistry.sol</span>
               <p className="text-[11px] text-gray-500 leading-relaxed">
                 Struktur Merkle Tree memvalidasi integritas dokumen secara client-side tanpa mengirimkan berkas rahasia ke server.
@@ -73,9 +73,9 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500">
+        <div className="pt-6 sm:pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 text-center sm:text-left gap-2 sm:gap-0">
           <p>© 2026 VERIDEX Protocol. Hak Cipta Dilindungi.</p>
-          <p className="mt-2 sm:mt-0 font-mono text-[11px]">
+          <p className="font-mono text-[11px]">
             SHA-256 Merkle Proof • Monad EVM
           </p>
         </div>
