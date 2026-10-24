@@ -1,0 +1,26 @@
+{
+  "name": "veridex-smart-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for Veridex AI Credentialing Platform on Monad Testnet",
+  "main": "hardhat.config.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:monad": "hardhat run scripts/deploy.js --network monadTestnet",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "interact": "hardhat run scripts/interact.js --network monadTestnet"
+  },
+  "keywords": [
+    "monad",
+    "veridex",
+    "solidity",
+    "merkle-tree",
+    "credentials"
+  ],
+  "author": "Veridex Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.29.1"
+  }
+}

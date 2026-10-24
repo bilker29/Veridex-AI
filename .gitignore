@@ -42,3 +42,8 @@ data/
 
 # Local runner wrapper
 powershell.cmd
+
+# Hardhat
+smart-contracts/artifacts/
+smart-contracts/cache/
+
