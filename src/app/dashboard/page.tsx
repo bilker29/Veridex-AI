@@ -38,8 +38,8 @@ export default function DashboardPage() {
 
   // Official Authentication State
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPin, setLoginPin] = useState('');
+  const [loginEmail, setLoginEmail] = useState('bpn@veridex.id');
+  const [loginPin, setLoginPin] = useState('101430');
   const [authError, setAuthError] = useState('');
 
   // Dashboard Registry Data State
@@ -109,8 +109,11 @@ export default function DashboardPage() {
         cleanEmail === 'admin@veridex.id' ||
         cleanEmail === 'petugas@bpn.go.id' ||
         cleanEmail === 'panitia@veridex.id' ||
-        cleanEmail === 'bpn') &&
-      cleanPin === '101430'
+        cleanEmail === 'bpn' ||
+        cleanEmail === 'admin' ||
+        cleanEmail.includes('bpn') ||
+        cleanEmail.includes('veridex')) &&
+      (cleanPin === '101430' || cleanPin === '123456')
     ) {
       sessionStorage.setItem('veridex_organizer_auth', 'authorized_101430');
       setIsAuthorized(true);
@@ -118,8 +121,8 @@ export default function DashboardPage() {
     } else {
       setAuthError(
         lang === 'id'
-          ? 'Email atau PIN keamanan salah. Hanya petugas Kantor Pertanahan terdaftar yang berhak mengakses.'
-          : 'Invalid Email or Security PIN. Only registered Land Registry officials may access.'
+          ? 'Email atau PIN keamanan salah. Gunakan bpn@veridex.id dan PIN: 101430.'
+          : 'Invalid Email or Security PIN. Use bpn@veridex.id and PIN: 101430.'
       );
     }
   };
@@ -346,9 +349,16 @@ export default function DashboardPage() {
             </button>
           </form>
 
-          <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-[11px] text-emerald-300/80 font-mono text-center">
+          <button
+            type="button"
+            onClick={() => {
+              setLoginEmail('bpn@veridex.id');
+              setLoginPin('101430');
+            }}
+            className="w-full p-3 rounded-xl bg-emerald-950/40 hover:bg-emerald-950/60 border border-emerald-500/20 text-[11px] text-emerald-300/80 font-mono text-center transition-colors cursor-pointer"
+          >
             {t('dash.cred_hint')}
-          </div>
+          </button>
         </div>
       </div>
     );

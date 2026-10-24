@@ -168,13 +168,13 @@ export default function HomePage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href="/api/certificates/0x7e5c9b2b5120a1c6a287955ad0e2168f44ff530372df0d9f48512140d046c823"
+              href="/api/certificates/0x6a214a86b696c40e5250e7c2c923983405457e7daf1bb176e7a65711c1e8241c"
               className="px-4 py-2 rounded-xl bg-cyber-emerald/15 hover:bg-cyber-emerald/25 border border-cyber-emerald/40 text-cyber-emerald text-xs font-semibold transition-all font-mono"
             >
               Unduh Sertifikat Valid (Budi)
             </a>
             <a
-              href="/api/certificates/0x7e5c9b2b5120a1c6a287955ad0e2168f44ff530372df0d9f48512140d046c823/tampered"
+              href="/api/certificates/0x6a214a86b696c40e5250e7c2c923983405457e7daf1bb176e7a65711c1e8241c/tampered"
               className="px-4 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 text-red-300 text-xs font-semibold transition-all font-mono"
             >
               Unduh Salinan Rekayasa (Palsu)

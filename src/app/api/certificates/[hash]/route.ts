@@ -49,6 +49,6 @@ export async function GET(
     });
   } catch (err: any) {
     console.error('Error serving land certificate PDF:', err);
-    return new NextResponse('Internal error serving PDF', { status: 500 });
+    return new NextResponse(`Internal error serving PDF: ${err.message}`, { status: 500 });
   }
 }

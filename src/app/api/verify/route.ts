@@ -5,29 +5,33 @@ import { VeridexMerkle } from '@/lib/merkle';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const queryParam = (body.query || body.search || body.certificate_number || body.serial_number || '').trim();
     let pdfHash = (body.pdf_hash || body.hash || '').trim();
 
-    if (!pdfHash) {
+    if (!pdfHash && !queryParam) {
       return NextResponse.json(
-        { success: false, status: 'FORGED', message: 'pdf_hash parameter is required' },
+        { success: false, status: 'FORGED', message: 'Hash dokumen atau nomor sertifikat diperlukan untuk verifikasi' },
         { status: 400 }
       );
     }
 
-    if (!pdfHash.startsWith('0x')) {
+    if (pdfHash && !pdfHash.startsWith('0x') && pdfHash.length === 64) {
       pdfHash = `0x${pdfHash}`;
     }
 
-    // Step 1: Look up land asset by PDF hash
-    const asset = VeridexDb.getAssetByHash(pdfHash);
+    // Step 1: Look up land asset by PDF hash or query (certificate number, serial, NIK)
+    let asset = pdfHash ? VeridexDb.getAssetByHash(pdfHash) : undefined;
+    if (!asset && (queryParam || pdfHash)) {
+      asset = VeridexDb.getAssetByQuery(queryParam || pdfHash);
+    }
 
     if (!asset) {
       return NextResponse.json(
         {
           success: false,
           status: 'FORGED',
-          message: 'Hash mismatch or document forged. No matching certificate root found on Monad.',
-          pdf_hash: pdfHash,
+          message: 'Sertifikat tidak ditemukan atau nilai hash tidak cocok dengan catatan resmi pada blockchain Monad.',
+          pdf_hash: pdfHash || queryParam,
         },
         { status: 400 }
       );
@@ -39,10 +43,15 @@ export async function POST(req: NextRequest) {
         {
           success: false,
           status: 'REVOKED',
-          message: 'This certificate was officially REVOKED by the land registry office.',
-          participant_name: asset.owner_name,
+          message: 'Sertifikat tanah ini pernah diterbitkan namun telah resmi DICABUT / DIBATALKAN oleh Kantor Pertanahan.',
           owner_name: asset.owner_name,
-          pdf_hash: pdfHash,
+          owner_id: asset.owner_id,
+          certificate_number: asset.certificate_number,
+          land_location: asset.land_location,
+          land_area: asset.land_area,
+          land_type: asset.land_type,
+          pdf_hash: asset.pdf_hash,
+          serial_number: asset.serial_number,
         },
         { status: 400 }
       );
@@ -55,13 +64,13 @@ export async function POST(req: NextRequest) {
         {
           success: false,
           status: 'FORGED',
-          message: 'Associated batch registry record not found.',
+          message: 'Data batch registri kantor pertanahan tidak ditemukan.',
         },
         { status: 400 }
       );
     }
 
-    // Cryptographically verify Merkle proof
+    // Cryptographically verify Merkle proof against Monad on-chain Merkle Root
     const isValidProof = VeridexMerkle.verifyProof(
       asset.pdf_hash,
       asset.merkle_proof,
@@ -73,24 +82,22 @@ export async function POST(req: NextRequest) {
         {
           success: false,
           status: 'FORGED',
-          message: 'Cryptographic proof verification failed against Monad on-chain Merkle Root.',
+          message: 'Verifikasi bukti kriptografis Merkle gagal terhadap Root on-chain Monad.',
         },
         { status: 400 }
       );
     }
 
-    // Return Verified details matching both land asset and participant interfaces
+    // Return Verified details with complete land asset specifications
     return NextResponse.json({
       success: true,
       status: 'VERIFIED',
-      participant_name: asset.owner_name,
       owner_name: asset.owner_name,
       owner_id: asset.owner_id,
       land_location: asset.land_location,
       land_area: asset.land_area,
       land_type: asset.land_type,
       certificate_number: asset.certificate_number,
-      event_name: registry.name,
       registry_name: registry.name,
       batch_id: registry.batch_id,
       merkle_root: registry.merkle_root,
@@ -100,11 +107,17 @@ export async function POST(req: NextRequest) {
       issued_at: asset.created_at || registry.created_at,
       serial_number: asset.serial_number,
       pdf_hash: asset.pdf_hash,
+      download_url: `/api/certificates/${asset.pdf_hash}`,
+      tampered_download_url: `/api/certificates/${asset.pdf_hash}/tampered`,
+      // Backward compatibility aliases
+      participant_name: asset.owner_name,
+      participant_email: asset.owner_id,
+      event_name: registry.name,
     });
   } catch (err: any) {
     console.error('Error in /api/verify:', err);
     return NextResponse.json(
-      { success: false, status: 'FORGED', message: err.message || 'Verification failed' },
+      { success: false, status: 'FORGED', message: err.message || 'Verifikasi sertifikat gagal' },
       { status: 500 }
     );
   }

@@ -21,6 +21,9 @@ export class VeridexPdfGenerator {
    */
   static async generateCertificate(meta: LandCertificateMetadata): Promise<{ pdfBytes: Uint8Array; serialNumber: string }> {
     const pdfDoc = await PDFDocument.create();
+    // Fix timestamps to ensure cryptographic determinism across regenerations
+    pdfDoc.setCreationDate(new Date('2026-10-24T00:00:00Z'));
+    pdfDoc.setModificationDate(new Date('2026-10-24T00:00:00Z'));
     
     // Landscape A4: 841.89 x 595.28
     const width = 842;

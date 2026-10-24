@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { RegistryBatch, LandAsset } from './types';
 import { VeridexMerkle } from './merkle';
 
@@ -54,8 +54,8 @@ function saveToDisk(data: StoredData) {
 // Initialize state
 memoryDb = loadFromDisk();
 
-const a1Hash = '0x7e5c9b2b5120a1c6a287955ad0e2168f44ff530372df0d9f48512140d046c823';
-const a2Hash = '0x3a4b5c6d7e8f90123456789abcdef0123456789abcdef0123456789abcdef012';
+const a1Hash = '0x6a214a86b696c40e5250e7c2c923983405457e7daf1bb176e7a65711c1e8241c';
+const a2Hash = '0x0cf0a56a50b2fc58d1cca717ba4242472473d6c66cd1bd5c842c35a79d3fa65a';
 const seedTree = VeridexMerkle.buildTree([a1Hash, a2Hash]);
 const correctSampleRoot = seedTree.root;
 
@@ -72,12 +72,12 @@ if (!sampleRegistry || memoryDb.assets.length === 0 || sampleRegistry.merkle_roo
 
   memoryDb.registries.unshift({
     id: sampleRegistryId,
-    name: 'BPN Jakarta Selatan - Batch 2026',
+    name: 'Kantor Pertanahan Jakarta Selatan - Batch 2026',
     batch_id: sampleBatchId,
     merkle_root: correctSampleRoot,
     tx_hash: sampleTx,
     block_number: 28491024,
-    created_at: new Date().toISOString(),
+    created_at: '2026-10-24T08:00:00.000Z',
     asset_count: 2,
   });
 
@@ -94,7 +94,7 @@ if (!sampleRegistry || memoryDb.assets.length === 0 || sampleRegistry.merkle_roo
       pdf_hash: a1Hash,
       merkle_proof: seedTree.getProof(a1Hash),
       status: 'VALID',
-      created_at: new Date().toISOString(),
+      created_at: '2026-10-24T08:00:00.000Z',
       serial_number: 'VRX-LAND-0001',
     },
     {
@@ -109,7 +109,7 @@ if (!sampleRegistry || memoryDb.assets.length === 0 || sampleRegistry.merkle_roo
       pdf_hash: a2Hash,
       merkle_proof: seedTree.getProof(a2Hash),
       status: 'VALID',
-      created_at: new Date().toISOString(),
+      created_at: '2026-10-24T08:00:00.000Z',
       serial_number: 'VRX-LAND-0002',
     }
   );
@@ -146,6 +146,17 @@ export class VeridexDb {
 
   static getAssetBySerial(serial: string): LandAsset | undefined {
     return memoryDb.assets.find(a => a.serial_number === serial);
+  }
+
+  static getAssetByQuery(query: string): LandAsset | undefined {
+    const q = query.trim().toLowerCase();
+    if (!q) return undefined;
+    return memoryDb.assets.find(a => 
+      a.pdf_hash.toLowerCase() === q ||
+      a.certificate_number.toLowerCase() === q ||
+      a.serial_number?.toLowerCase() === q ||
+      a.owner_id.toLowerCase() === q
+    );
   }
 
   static addAssets(newAssets: LandAsset[]) {

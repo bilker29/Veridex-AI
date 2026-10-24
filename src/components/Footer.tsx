@@ -10,9 +10,9 @@ export default function Footer() {
           <div className="space-y-3 md:col-span-1">
             <span className="font-bold text-white tracking-wide text-base">VERIDEX</span>
             <p className="text-xs text-gray-400 leading-relaxed">
-              Penilaian Cerdas. Penerbitan Kecepatan Tinggi. Bukti Anti-Pemalsuan. Protokol kredensial berbasis Merkle Tree di Monad Testnet.
+              Tokenisasi Tanah RWA. Penerbitan Kecepatan Tinggi. Bukti Anti-Pemalsuan. Protokol sertifikat tanah berbasis Merkle Tree di Monad Testnet.
             </p>
-            <div className="inline-block text-[11px] font-mono px-2.5 py-1 rounded bg-monad-900/40 border border-monad-500/20 text-monad-300">
+            <div className="inline-block text-[11px] font-mono px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-500/20 text-emerald-400">
               10.000 TPS • 1-Tx Merkle Batch
             </div>
           </div>
@@ -28,11 +28,11 @@ export default function Footer() {
                 <Link href="/about" className="hover:text-cyber-cyan transition-colors">Tentang &amp; Keamanan</Link>
               </li>
               <li>
-                <Link href="/verify" className="hover:text-cyber-cyan transition-colors">Verifikasi Dokumen</Link>
+                <Link href="/verify" className="hover:text-cyber-cyan transition-colors">Verifikasi Sertifikat</Link>
               </li>
               <li>
-                <Link href="/dashboard" className="text-monad-400 hover:text-white transition-colors">
-                  Portal Penyelenggara
+                <Link href="/dashboard" className="text-emerald-400 hover:text-white transition-colors">
+                  Portal Pertanahan BPN
                 </Link>
               </li>
             </ul>
