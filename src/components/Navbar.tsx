@@ -18,11 +18,11 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-[#080A11]/90 border-b border-monad-500/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Clean Typography Brand - No Logo Icon as requested */}
+        {/* Clean Typography Brand with RWA Land Badge */}
         <Link href="/" className="flex items-center space-x-2 group">
           <span className="font-extrabold text-xl tracking-wider text-white">VERIDEX</span>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-monad-500/20 text-monad-300 border border-monad-500/30">
-            PROTOCOL
+          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+            RWA LAND
           </span>
         </Link>
 
@@ -34,7 +34,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
                   isActive
                     ? 'bg-monad-600/30 text-white border border-monad-500/40 shadow-sm shadow-monad-500/20'
                     : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -46,7 +46,7 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* Right Actions: Language Switcher, Organizer Portal, Verify */}
+        {/* Right Actions: Language Switcher, BPN Portal, Verify CTA */}
         <div className="flex items-center space-x-2.5">
           {/* Language Switcher (ID / EN) */}
           <div className="flex items-center bg-black/60 border border-white/10 rounded-lg p-0.5 text-xs font-mono">
@@ -74,24 +74,16 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* Organizer Access Button */}
+          {/* BPN Land Registry Portal Access Button */}
           <Link
             href="/dashboard"
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium font-mono border transition-all ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-medium font-mono border transition-all ${
               pathname === '/dashboard'
-                ? 'bg-monad-600/40 text-cyber-cyan border-cyber-cyan/50'
-                : 'bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border-white/10'
+                ? 'bg-emerald-600/30 text-emerald-300 border-emerald-500/50'
+                : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 hover:text-white border-emerald-500/40'
             }`}
           >
-            <span>{t('nav.organizer')}</span>
-          </Link>
-
-          {/* Public Verify CTA Button */}
-          <Link
-            href="/verify"
-            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-monad-600 to-monad-500 hover:from-monad-500 hover:to-cyber-cyan text-white text-xs font-semibold uppercase tracking-wider transition-all shadow-md shadow-monad-500/25 active:scale-95"
-          >
-            <span>{t('nav.verify_btn')}</span>
+            <span>{t('nav.registry')}</span>
           </Link>
         </div>
       </div>

@@ -18,10 +18,10 @@ export async function POST(req: NextRequest) {
       pdfHash = `0x${pdfHash}`;
     }
 
-    // Step 1: Look up participant by PDF hash
-    const participant = VeridexDb.getParticipantByHash(pdfHash);
+    // Step 1: Look up land asset by PDF hash
+    const asset = VeridexDb.getAssetByHash(pdfHash);
 
-    if (!participant) {
+    if (!asset) {
       return NextResponse.json(
         {
           success: false,
@@ -34,27 +34,28 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 2: Check revocation status
-    if (participant.status === 'REVOKED') {
+    if (asset.status === 'REVOKED') {
       return NextResponse.json(
         {
           success: false,
           status: 'REVOKED',
-          message: 'This certificate was officially REVOKED by the organizer on Monad Testnet.',
-          participant_name: participant.name,
+          message: 'This certificate was officially REVOKED by the land registry office.',
+          participant_name: asset.owner_name,
+          owner_name: asset.owner_name,
           pdf_hash: pdfHash,
         },
         { status: 400 }
       );
     }
 
-    // Step 3: Fetch event and verify cryptographic Merkle proof against Merkle Root
-    const event = VeridexDb.getEventById(participant.event_id);
-    if (!event) {
+    // Step 3: Fetch registry batch and verify cryptographic Merkle proof against Merkle Root
+    const registry = VeridexDb.getRegistryById(asset.registry_id);
+    if (!registry) {
       return NextResponse.json(
         {
           success: false,
           status: 'FORGED',
-          message: 'Associated batch event record not found.',
+          message: 'Associated batch registry record not found.',
         },
         { status: 400 }
       );
@@ -62,9 +63,9 @@ export async function POST(req: NextRequest) {
 
     // Cryptographically verify Merkle proof
     const isValidProof = VeridexMerkle.verifyProof(
-      participant.pdf_hash,
-      participant.merkle_proof,
-      event.merkle_root
+      asset.pdf_hash,
+      asset.merkle_proof,
+      registry.merkle_root
     );
 
     if (!isValidProof) {
@@ -78,21 +79,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Return Verified details matching PRD spec
+    // Return Verified details matching both land asset and participant interfaces
     return NextResponse.json({
       success: true,
       status: 'VERIFIED',
-      participant_name: participant.name,
-      participant_email: participant.email,
-      event_name: event.name,
-      batch_id: event.batch_id,
-      merkle_root: event.merkle_root,
-      merkle_proof: participant.merkle_proof,
-      tx_hash: event.tx_hash,
-      block_number: event.block_number || 28491024,
-      issued_at: participant.created_at || event.created_at,
-      serial_number: participant.serial_number,
-      pdf_hash: participant.pdf_hash,
+      participant_name: asset.owner_name,
+      owner_name: asset.owner_name,
+      owner_id: asset.owner_id,
+      land_location: asset.land_location,
+      land_area: asset.land_area,
+      land_type: asset.land_type,
+      certificate_number: asset.certificate_number,
+      event_name: registry.name,
+      registry_name: registry.name,
+      batch_id: registry.batch_id,
+      merkle_root: registry.merkle_root,
+      merkle_proof: asset.merkle_proof,
+      tx_hash: registry.tx_hash,
+      block_number: registry.block_number || 28491024,
+      issued_at: asset.created_at || registry.created_at,
+      serial_number: asset.serial_number,
+      pdf_hash: asset.pdf_hash,
     });
   } catch (err: any) {
     console.error('Error in /api/verify:', err);

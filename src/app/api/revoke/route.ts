@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Security Gate: Ensure caller is a registered organizer
+    // Security Gate: Ensure caller is an authorized registry official
     const organizerKey = req.headers.get('x-organizer-key') || body.organizer_key;
     const validOrganizerKey = process.env.ORGANIZER_SECRET_KEY || 'MONAD-ORGANIZER-2026';
 
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Akses Ditolak: Hanya Penyelenggara Resmi / Terdaftar yang memiliki izin untuk mencabut sertifikat.',
+          message: 'Akses Ditolak: Hanya Petugas Kantor Pertanahan Resmi yang memiliki izin untuk membatalkan/mencabut sertifikat tanah.',
         },
         { status: 401 }
       );
@@ -33,16 +33,16 @@ export async function POST(req: NextRequest) {
       certHash = `0x${certHash}`;
     }
 
-    const participant = VeridexDb.getParticipantByHash(certHash);
-    if (!participant) {
+    const asset = VeridexDb.getAssetByHash(certHash);
+    if (!asset) {
       return NextResponse.json(
-        { success: false, message: 'Certificate not found in registry' },
+        { success: false, message: 'Sertifikat tanah tidak ditemukan dalam database registri' },
         { status: 404 }
       );
     }
 
-    // Revoke in DB
-    VeridexDb.revokeParticipant(certHash);
+    // Revoke in local DB
+    VeridexDb.revokeAsset(certHash);
 
     // Broadcast revocation to Monad Testnet
     const monadTx = await MonadClient.revokeCertificate(certHash);
@@ -50,9 +50,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       status: 'REVOKED',
-      message: `Certificate for ${participant.name} revoked successfully on Monad Testnet`,
+      message: `Sertifikat tanah ${asset.certificate_number} milik ${asset.owner_name} berhasil dicabut di smart contract Monad`,
       data: {
-        participant_name: participant.name,
+        owner_name: asset.owner_name,
+        certificate_number: asset.certificate_number,
         cert_hash: certHash,
         tx_hash: monadTx.txHash,
         block_number: monadTx.blockNumber,
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     console.error('Error in /api/revoke:', err);
     return NextResponse.json(
-      { success: false, message: err.message || 'Revocation failed' },
+      { success: false, message: err.message || 'Pencabutan sertifikat gagal' },
       { status: 500 }
     );
   }

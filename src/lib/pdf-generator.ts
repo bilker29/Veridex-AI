@@ -1,10 +1,14 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import QRCode from 'qrcode';
 
-export interface CertificateMetadata {
-  recipientName: string;
-  recipientEmail: string;
-  eventName: string;
+export interface LandCertificateMetadata {
+  ownerName: string;
+  ownerId: string;
+  landLocation: string;
+  landArea: string;
+  landType: string;
+  certificateNumber: string;
+  registryName: string;
   issueDate: string;
   serialNumber: string;
   batchId?: string;
@@ -13,9 +17,9 @@ export interface CertificateMetadata {
 
 export class VeridexPdfGenerator {
   /**
-   * Generates a high-quality verifiable PDF certificate using pdf-lib
+   * Generates a high-quality verifiable Land Certificate PDF using pdf-lib
    */
-  static async generateCertificate(meta: CertificateMetadata): Promise<{ pdfBytes: Uint8Array; serialNumber: string }> {
+  static async generateCertificate(meta: LandCertificateMetadata): Promise<{ pdfBytes: Uint8Array; serialNumber: string }> {
     const pdfDoc = await PDFDocument.create();
     
     // Landscape A4: 841.89 x 595.28
@@ -37,6 +41,7 @@ export class VeridexPdfGenerator {
     const goldAccent = rgb(0.96, 0.77, 0.26); // #F5C542
     const textWhite = rgb(0.96, 0.97, 1.0);
     const textMuted = rgb(0.62, 0.66, 0.78);
+    const landGreen = rgb(0.12, 0.72, 0.45); // #1EB873
 
     // 1. Draw Background
     page.drawRectangle({
@@ -54,11 +59,11 @@ export class VeridexPdfGenerator {
       width: width - 50,
       height: height - 50,
       color: bgCard,
-      borderColor: purpleMonad,
+      borderColor: landGreen,
       borderWidth: 2,
     });
 
-    // 3. Inner Decorative Golden Border
+    // 3. Inner Decorative Border
     page.drawRectangle({
       x: 35,
       y: 35,
@@ -71,28 +76,28 @@ export class VeridexPdfGenerator {
     // Corner decorative accents
     const cornerSize = 24;
     // Top-left
-    page.drawLine({ start: { x: 30, y: height - 30 }, end: { x: 30 + cornerSize, y: height - 30 }, color: cyanCyber, thickness: 3 });
-    page.drawLine({ start: { x: 30, y: height - 30 }, end: { x: 30, y: height - 30 - cornerSize }, color: cyanCyber, thickness: 3 });
+    page.drawLine({ start: { x: 30, y: height - 30 }, end: { x: 30 + cornerSize, y: height - 30 }, color: goldAccent, thickness: 3 });
+    page.drawLine({ start: { x: 30, y: height - 30 }, end: { x: 30, y: height - 30 - cornerSize }, color: goldAccent, thickness: 3 });
     // Top-right
-    page.drawLine({ start: { x: width - 30, y: height - 30 }, end: { x: width - 30 - cornerSize, y: height - 30 }, color: cyanCyber, thickness: 3 });
-    page.drawLine({ start: { x: width - 30, y: height - 30 }, end: { x: width - 30, y: height - 30 - cornerSize }, color: cyanCyber, thickness: 3 });
+    page.drawLine({ start: { x: width - 30, y: height - 30 }, end: { x: width - 30 - cornerSize, y: height - 30 }, color: goldAccent, thickness: 3 });
+    page.drawLine({ start: { x: width - 30, y: height - 30 }, end: { x: width - 30, y: height - 30 - cornerSize }, color: goldAccent, thickness: 3 });
     // Bottom-left
-    page.drawLine({ start: { x: 30, y: 30 }, end: { x: 30 + cornerSize, y: 30 }, color: cyanCyber, thickness: 3 });
-    page.drawLine({ start: { x: 30, y: 30 }, end: { x: 30, y: 30 + cornerSize }, color: cyanCyber, thickness: 3 });
+    page.drawLine({ start: { x: 30, y: 30 }, end: { x: 30 + cornerSize, y: 30 }, color: goldAccent, thickness: 3 });
+    page.drawLine({ start: { x: 30, y: 30 }, end: { x: 30, y: 30 + cornerSize }, color: goldAccent, thickness: 3 });
     // Bottom-right
-    page.drawLine({ start: { x: width - 30, y: 30 }, end: { x: width - 30 - cornerSize, y: 30 }, color: cyanCyber, thickness: 3 });
-    page.drawLine({ start: { x: width - 30, y: 30 }, end: { x: width - 30, y: 30 + cornerSize }, color: cyanCyber, thickness: 3 });
+    page.drawLine({ start: { x: width - 30, y: 30 }, end: { x: width - 30 - cornerSize, y: 30 }, color: goldAccent, thickness: 3 });
+    page.drawLine({ start: { x: width - 30, y: 30 }, end: { x: width - 30, y: 30 + cornerSize }, color: goldAccent, thickness: 3 });
 
     // 4. Header: Platform Brand
-    page.drawText('VERIDEX PROTOCOL', {
+    page.drawText('VERIDEX RWA PROTOCOL', {
       x: 65,
       y: height - 75,
       size: 16,
       font: fontTitle,
-      color: cyanCyber,
+      color: landGreen,
     });
 
-    page.drawText('POWERED BY MONAD TESTNET // 10,000 TPS', {
+    page.drawText('LAND CERTIFICATE • POWERED BY MONAD TESTNET', {
       x: 65,
       y: height - 92,
       size: 8.5,
@@ -100,45 +105,45 @@ export class VeridexPdfGenerator {
       color: purpleMonad,
     });
 
-    // 5. Main Title: "CERTIFICATE OF RECOGNITION"
-    const certTitle = 'CERTIFICATE OF RECOGNITION';
-    const certTitleWidth = fontTitle.widthOfTextAtSize(certTitle, 26);
+    // 5. Main Title: "SERTIFIKAT HAK ATAS TANAH"
+    const certTitle = 'SERTIFIKAT HAK ATAS TANAH';
+    const certTitleWidth = fontTitle.widthOfTextAtSize(certTitle, 24);
     page.drawText(certTitle, {
       x: (width - certTitleWidth) / 2,
-      y: height - 145,
-      size: 26,
+      y: height - 140,
+      size: 24,
       font: fontTitle,
       color: goldAccent,
     });
 
-    const subTitle = 'TAMPER-PROOF ON-CHAIN CREDENTIAL';
-    const subTitleWidth = fontMono.widthOfTextAtSize(subTitle, 10);
+    const subTitle = `${meta.landType} — TOKENIZED ON-CHAIN RWA CREDENTIAL`;
+    const subTitleWidth = fontMono.widthOfTextAtSize(subTitle, 9);
     page.drawText(subTitle, {
       x: (width - subTitleWidth) / 2,
-      y: height - 165,
-      size: 10,
+      y: height - 158,
+      size: 9,
       font: fontMono,
       color: textMuted,
     });
 
-    // 6. Presentation text: "This certifies that"
-    const certText = 'This certifies that';
-    const certTextWidth = fontBody.widthOfTextAtSize(certText, 13);
-    page.drawText(certText, {
-      x: (width - certTextWidth) / 2,
-      y: height - 210,
-      size: 13,
-      font: fontBody,
-      color: textMuted,
+    // 6. Certificate Number
+    const certNumText = `No. Sertifikat: ${meta.certificateNumber}`;
+    const certNumWidth = fontTitle.widthOfTextAtSize(certNumText, 12);
+    page.drawText(certNumText, {
+      x: (width - certNumWidth) / 2,
+      y: height - 185,
+      size: 12,
+      font: fontTitle,
+      color: cyanCyber,
     });
 
-    // 7. Recipient Name
-    const nameText = meta.recipientName.toUpperCase();
-    const nameSize = 28;
+    // 7. Owner Name
+    const nameText = meta.ownerName.toUpperCase();
+    const nameSize = 26;
     const nameWidth = fontSerif.widthOfTextAtSize(nameText, nameSize);
     page.drawText(nameText, {
       x: (width - nameWidth) / 2,
-      y: height - 255,
+      y: height - 230,
       size: nameSize,
       font: fontSerif,
       color: textWhite,
@@ -146,32 +151,35 @@ export class VeridexPdfGenerator {
 
     // Underline for name
     page.drawLine({
-      start: { x: (width - Math.max(nameWidth + 60, 320)) / 2, y: height - 268 },
-      end: { x: (width + Math.max(nameWidth + 60, 320)) / 2, y: height - 268 },
-      color: purpleMonad,
+      start: { x: (width - Math.max(nameWidth + 60, 320)) / 2, y: height - 243 },
+      end: { x: (width + Math.max(nameWidth + 60, 320)) / 2, y: height - 243 },
+      color: landGreen,
       thickness: 1.5,
     });
 
-    // 8. Event Recognition Description
-    const forText = 'has successfully completed all requirements and is officially recognized for participation in';
-    const forTextWidth = fontBody.widthOfTextAtSize(forText, 11);
-    page.drawText(forText, {
-      x: (width - forTextWidth) / 2,
-      y: height - 305,
-      size: 11,
-      font: fontBody,
-      color: textMuted,
+    // 8. Land Details Grid
+    const detailStartY = height - 280;
+    const col1X = 120;
+    const col2X = width / 2 + 30;
+
+    // Left column
+    page.drawText('LOKASI TANAH:', { x: col1X, y: detailStartY, size: 8, font: fontMono, color: textMuted });
+    const locationLines = meta.landLocation.length > 40 
+      ? [meta.landLocation.substring(0, 40), meta.landLocation.substring(40)]
+      : [meta.landLocation];
+    locationLines.forEach((line, i) => {
+      page.drawText(line, { x: col1X, y: detailStartY - 15 - (i * 12), size: 10, font: fontBody, color: textWhite });
     });
 
-    const eventText = meta.eventName;
-    const eventWidth = fontTitle.widthOfTextAtSize(eventText, 18);
-    page.drawText(eventText, {
-      x: (width - eventWidth) / 2,
-      y: height - 335,
-      size: 18,
-      font: fontTitle,
-      color: cyanCyber,
-    });
+    page.drawText('NIK PEMILIK:', { x: col1X, y: detailStartY - 50, size: 8, font: fontMono, color: textMuted });
+    page.drawText(meta.ownerId || '-', { x: col1X, y: detailStartY - 65, size: 10, font: fontMono, color: textWhite });
+
+    // Right column
+    page.drawText('LUAS TANAH:', { x: col2X, y: detailStartY, size: 8, font: fontMono, color: textMuted });
+    page.drawText(meta.landArea, { x: col2X, y: detailStartY - 15, size: 14, font: fontTitle, color: cyanCyber });
+
+    page.drawText('JENIS HAK:', { x: col2X, y: detailStartY - 50, size: 8, font: fontMono, color: textMuted });
+    page.drawText(meta.landType, { x: col2X, y: detailStartY - 65, size: 14, font: fontTitle, color: goldAccent });
 
     // 9. Generate QR Code for Verification
     const verifyUrl = `${meta.verifyBaseUrl || 'https://veridex.monad.xyz'}/verify?serial=${encodeURIComponent(meta.serialNumber)}`;
@@ -211,8 +219,7 @@ export class VeridexPdfGenerator {
       color: textMuted,
     });
 
-    // 10. Signatures / Metadata Blocks
-    // Left: Serial & Date
+    // 10. Metadata Blocks
     page.drawText(`SERIAL ID: ${meta.serialNumber}`, {
       x: 65,
       y: 115,
@@ -227,14 +234,14 @@ export class VeridexPdfGenerator {
       font: fontMono,
       color: textMuted,
     });
-    page.drawText(`RECIPIENT: ${meta.recipientEmail}`, {
+    page.drawText(`REGISTRY: ${meta.registryName}`, {
       x: 65,
       y: 81,
       size: 8.5,
       font: fontMono,
       color: textMuted,
     });
-    page.drawText(`BATCH REF: ${meta.batchId || 'EVT-MONAD-2026'}`, {
+    page.drawText(`BATCH REF: ${meta.batchId || 'BPN-MONAD-2026'}`, {
       x: 65,
       y: 64,
       size: 8.5,
@@ -243,15 +250,15 @@ export class VeridexPdfGenerator {
     });
 
     // Center: Cryptographic Seal text
-    const sealText = 'CRYPTOGRAPHICALLY ANCHORED IN MONAD TESTNET MERKLE ROOT';
+    const sealText = 'CRYPTOGRAPHICALLY ANCHORED IN MONAD TESTNET • RWA LAND TOKEN';
     page.drawText(sealText, {
       x: (width - fontMono.widthOfTextAtSize(sealText, 7.5)) / 2,
       y: 68,
       size: 7.5,
       font: fontMono,
-      color: purpleMonad,
+      color: landGreen,
     });
-    const subNotice = '1-PIXEL TAMPER RESISTANT • ZERO-KNOWLEDGE PROOF READY';
+    const subNotice = 'TAMPER RESISTANT • MERKLE PROOF VERIFIED • REAL WORLD ASSET';
     page.drawText(subNotice, {
       x: (width - fontMono.widthOfTextAtSize(subNotice, 6.5)) / 2,
       y: 54,

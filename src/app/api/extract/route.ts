@@ -13,16 +13,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const participants = await AiExtractor.extractParticipants(rawText);
+    const landData = await AiExtractor.extractLandData(rawText);
 
     return NextResponse.json({
       success: true,
-      data: participants,
+      data: landData,
     });
   } catch (err: any) {
     console.error('Error in /api/extract:', err);
     return NextResponse.json(
-      { success: false, message: err.message || 'Failed to extract data' },
+      { success: false, message: err.message || 'Failed to extract land data' },
       { status: 500 }
     );
   }

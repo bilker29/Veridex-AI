@@ -39,3 +39,6 @@ tsconfig.tsbuildinfo
 
 # Data (runtime generated)
 data/
+
+# Local runner wrapper
+powershell.cmd

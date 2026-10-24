@@ -3,33 +3,44 @@ import { VeridexDb } from '@/lib/storage';
 
 export async function GET() {
   try {
-    const events = VeridexDb.getEvents();
-    const participants = VeridexDb.getParticipants();
+    const registries = VeridexDb.getRegistries();
+    const assets = VeridexDb.getAssets();
+
+    const formattedAssets = assets.map(a => ({
+      id: a.id,
+      registry_id: a.registry_id,
+      owner_name: a.owner_name,
+      owner_id: a.owner_id,
+      land_location: a.land_location,
+      land_area: a.land_area,
+      land_type: a.land_type,
+      certificate_number: a.certificate_number,
+      pdf_hash: a.pdf_hash,
+      status: a.status,
+      serial_number: a.serial_number,
+      created_at: a.created_at,
+      download_url: `/api/certificates/${a.pdf_hash}`,
+      // Backwards compatibility aliases if needed
+      name: a.owner_name,
+      email: a.owner_id,
+    }));
 
     return NextResponse.json({
       success: true,
-      events,
-      participants: participants.map(p => ({
-        id: p.id,
-        event_id: p.event_id,
-        name: p.name,
-        email: p.email,
-        pdf_hash: p.pdf_hash,
-        status: p.status,
-        serial_number: p.serial_number,
-        created_at: p.created_at,
-        download_url: `/api/certificates/${p.pdf_hash}`,
-      })),
+      registries,
+      events: registries, // alias for backwards compatibility
+      assets: formattedAssets,
+      participants: formattedAssets, // alias for backwards compatibility
       stats: {
-        total_events: events.length,
-        total_certificates: participants.length,
-        valid_count: participants.filter(p => p.status === 'VALID').length,
-        revoked_count: participants.filter(p => p.status === 'REVOKED').length,
+        total_registries: registries.length,
+        total_land_assets: assets.length,
+        valid_count: assets.filter(a => a.status === 'VALID').length,
+        revoked_count: assets.filter(a => a.status === 'REVOKED').length,
       },
     });
   } catch (err: any) {
     return NextResponse.json(
-      { success: false, message: err.message || 'Failed to fetch events' },
+      { success: false, message: err.message || 'Gagal memuat data pendaftaran tanah' },
       { status: 500 }
     );
   }

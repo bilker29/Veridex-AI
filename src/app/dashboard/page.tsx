@@ -3,10 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/language-context';
 
-interface ExtractedItem {
+interface LandAssetItem {
   id: string;
-  name: string;
-  email: string;
+  owner_name: string;
+  owner_id: string;
+  land_location: string;
+  land_area: string;
+  land_type: string;
 }
 
 interface IssuedBatchResult {
@@ -15,10 +18,14 @@ interface IssuedBatchResult {
   merkle_root: string;
   block_number: number;
   gas_used: string;
-  event_name: string;
-  participants: Array<{
-    name: string;
-    email: string;
+  registry_name: string;
+  assets: Array<{
+    owner_name: string;
+    owner_id: string;
+    land_location: string;
+    land_area: string;
+    land_type: string;
+    certificate_number: string;
     pdf_hash: string;
     serial_number: string;
     status: string;
@@ -29,22 +36,45 @@ interface IssuedBatchResult {
 export default function DashboardPage() {
   const { lang, t } = useLanguage();
 
-  // Organizer Authentication State
+  // Official Authentication State
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPin, setLoginPin] = useState('');
   const [authError, setAuthError] = useState('');
 
-  // Dashboard Data State
-  const [eventName, setEventName] = useState('Monad Blitz Hackathon 2026');
+  // Dashboard Registry Data State
+  const [registryName, setRegistryName] = useState('Kantor Pertanahan Jakarta Selatan - Batch 2026');
   const [rawText, setRawText] = useState(
-    'budi (budi@gmail.com) hadir bang, terus ada andi@mail.com namanya andi\nsiti.dev@monad.xyz (Siti Rahma) juga ikut'
+    '1. Budi Santoso | NIK: 3201010101900001 | Jl. Sudirman No. 45, Kebayoran Baru, Jakarta Selatan | 500 m² | SHM\n' +
+    '2. Siti Aminah | NIK: 3201020202880003 | Jl. TB Simatupang No. 88, Cilandak, Jakarta Selatan | 720 m² | SHGB\n' +
+    '3. Hendra Wijaya | NIK: 3171030303920005 | Jl. Senopati No. 19, Kebayoran Baru, Jakarta Selatan | 350 m² | SHM'
   );
   const [isExtracting, setIsExtracting] = useState(false);
-  const [participants, setParticipants] = useState<ExtractedItem[]>([
-    { id: '1', name: 'Budi', email: 'budi@gmail.com' },
-    { id: '2', name: 'Andi', email: 'andi@mail.com' },
-    { id: '3', name: 'Siti Rahma', email: 'siti.dev@monad.xyz' },
+  const [assets, setAssets] = useState<LandAssetItem[]>([
+    {
+      id: '1',
+      owner_name: 'Budi Santoso',
+      owner_id: '3201010101900001',
+      land_location: 'Jl. Sudirman No. 45, Kebayoran Baru, Jakarta Selatan',
+      land_area: '500 m²',
+      land_type: 'SHM',
+    },
+    {
+      id: '2',
+      owner_name: 'Siti Aminah',
+      owner_id: '3201020202880003',
+      land_location: 'Jl. TB Simatupang No. 88, Cilandak, Jakarta Selatan',
+      land_area: '720 m²',
+      land_type: 'SHGB',
+    },
+    {
+      id: '3',
+      owner_name: 'Hendra Wijaya',
+      owner_id: '3171030303920005',
+      land_location: 'Jl. Senopati No. 19, Kebayoran Baru, Jakarta Selatan',
+      land_area: '350 m²',
+      land_type: 'SHM',
+    },
   ]);
 
   // Issuance State & Progress
@@ -73,9 +103,13 @@ export default function DashboardPage() {
     const cleanEmail = loginEmail.trim().toLowerCase();
     const cleanPin = loginPin.trim();
 
-    // Verification check for registered organizer credentials
+    // Check credentials for registered land registry officer
     if (
-      (cleanEmail === 'panitia@veridex.id' || cleanEmail === 'admin@veridex.id' || cleanEmail === 'panitia') &&
+      (cleanEmail === 'bpn@veridex.id' ||
+        cleanEmail === 'admin@veridex.id' ||
+        cleanEmail === 'petugas@bpn.go.id' ||
+        cleanEmail === 'panitia@veridex.id' ||
+        cleanEmail === 'bpn') &&
       cleanPin === '101430'
     ) {
       sessionStorage.setItem('veridex_organizer_auth', 'authorized_101430');
@@ -84,8 +118,8 @@ export default function DashboardPage() {
     } else {
       setAuthError(
         lang === 'id'
-          ? 'Email atau PIN keamanan salah. Hanya panitia terdaftar yang dapat masuk.'
-          : 'Invalid Email or Security PIN. Only registered organizers may access.'
+          ? 'Email atau PIN keamanan salah. Hanya petugas Kantor Pertanahan terdaftar yang berhak mengakses.'
+          : 'Invalid Email or Security PIN. Only registered Land Registry officials may access.'
       );
     }
   };
@@ -103,11 +137,11 @@ export default function DashboardPage() {
       setHistoryLoading(true);
       const res = await fetch('/api/events');
       const data = await res.json();
-      if (data.success && data.participants) {
-        setIssuedHistory(data.participants);
+      if (data.success && (data.assets || data.participants)) {
+        setIssuedHistory(data.assets || data.participants);
       }
     } catch (err) {
-      console.error('Failed to load history:', err);
+      console.error('Failed to load land assets history:', err);
     } finally {
       setHistoryLoading(false);
     }
@@ -126,12 +160,19 @@ export default function DashboardPage() {
       if (data.success && Array.isArray(data.data) && data.data.length > 0) {
         const mapped = data.data.map((item: any, idx: number) => ({
           id: `${Date.now()}-${idx}`,
-          name: item.name,
-          email: item.email,
+          owner_name: item.owner_name || 'Pemilik',
+          owner_id: item.owner_id || '',
+          land_location: item.land_location || '',
+          land_area: item.land_area || '',
+          land_type: item.land_type || 'SHM',
         }));
-        setParticipants(mapped);
+        setAssets(mapped);
       } else {
-        alert(lang === 'id' ? 'Tidak ada peserta yang terdeteksi dari teks.' : 'No participants found in the text.');
+        alert(
+          lang === 'id'
+            ? 'Tidak ada data aset tanah yang terdeteksi dari teks.'
+            : 'No land asset data detected in the text.'
+        );
       }
     } catch (err: any) {
       alert(`Error ekstraksi data: ${err.message}`);
@@ -141,25 +182,30 @@ export default function DashboardPage() {
   };
 
   const handleAddRow = () => {
-    setParticipants([
-      ...participants,
-      { id: `${Date.now()}`, name: '', email: '' },
+    setAssets([
+      ...assets,
+      {
+        id: `${Date.now()}`,
+        owner_name: '',
+        owner_id: '',
+        land_location: '',
+        land_area: '',
+        land_type: 'SHM',
+      },
     ]);
   };
 
-  const handleUpdateParticipant = (id: string, field: 'name' | 'email', value: string) => {
-    setParticipants(
-      participants.map(p => (p.id === id ? { ...p, [field]: value } : p))
-    );
+  const handleUpdateAsset = (id: string, field: keyof LandAssetItem, value: string) => {
+    setAssets(assets.map(a => (a.id === id ? { ...a, [field]: value } : a)));
   };
 
-  const handleRemoveParticipant = (id: string) => {
-    setParticipants(participants.filter(p => p.id !== id));
+  const handleRemoveAsset = (id: string) => {
+    setAssets(assets.filter(a => a.id !== id));
   };
 
   const handleIssueCertificates = async () => {
-    if (participants.length === 0) {
-      alert(lang === 'id' ? 'Tambahkan minimal 1 peserta.' : 'Please add at least one participant.');
+    if (assets.length === 0) {
+      alert(lang === 'id' ? 'Tambahkan minimal 1 data aset tanah.' : 'Please add at least one land asset.');
       return;
     }
 
@@ -174,15 +220,18 @@ export default function DashboardPage() {
 
       const res = await fetch('/api/issue', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'x-organizer-key': 'MONAD-ORGANIZER-2026'
+          'x-organizer-key': 'MONAD-ORGANIZER-2026',
         },
         body: JSON.stringify({
-          event_name: eventName,
-          participants: participants.map(p => ({
-            name: p.name || 'Participant',
-            email: p.email || 'user@monad.xyz',
+          registry_name: registryName,
+          assets: assets.map(a => ({
+            owner_name: a.owner_name || 'Pemilik Tanah',
+            owner_id: a.owner_id || '3201010101900001',
+            land_location: a.land_location || 'DKI Jakarta',
+            land_area: a.land_area || '500 m²',
+            land_type: a.land_type || 'SHM',
           })),
         }),
       });
@@ -206,28 +255,29 @@ export default function DashboardPage() {
   };
 
   const handleRevoke = async (pdfHash: string) => {
-    const confirmMsg = lang === 'id'
-      ? 'Apakah Anda yakin ingin mencabut (revoke) sertifikat ini di smart contract Monad? Tindakan ini permanen.'
-      : 'Are you sure you want to revoke this certificate on Monad Testnet? This action is permanent.';
-      
+    const confirmMsg =
+      lang === 'id'
+        ? 'Apakah Anda yakin ingin membatalkan / mencabut (revoke) sertifikat tanah ini di smart contract Monad? Tindakan ini bersifat permanen dan akan ditandai palsu/batal pada verifikasi publik.'
+        : 'Are you sure you want to revoke this land certificate on Monad Testnet? This action is permanent and will flag the document as REVOKED.';
+
     if (!confirm(confirmMsg)) return;
 
     try {
       setRevokingHash(pdfHash);
       const res = await fetch('/api/revoke', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'x-organizer-key': 'MONAD-ORGANIZER-2026'
+          'x-organizer-key': 'MONAD-ORGANIZER-2026',
         },
         body: JSON.stringify({ cert_hash: pdfHash }),
       });
       const data = await res.json();
       if (data.success) {
-        alert(data.message || (lang === 'id' ? 'Sertifikat berhasil dicabut.' : 'Certificate revoked successfully.'));
+        alert(data.message || (lang === 'id' ? 'Sertifikat tanah berhasil dicabut.' : 'Certificate revoked successfully.'));
         fetchHistory();
       } else {
-        alert(data.message || (lang === 'id' ? 'Gagal mencabut sertifikat.' : 'Failed to revoke certificate.'));
+        alert(data.message || (lang === 'id' ? 'Gagal mencabut sertifikat tanah.' : 'Failed to revoke land certificate.'));
       }
     } catch (err: any) {
       alert(`Revoke error: ${err.message}`);
@@ -236,436 +286,445 @@ export default function DashboardPage() {
     }
   };
 
-  // IF NOT LOGGED IN: Render Proper Organizer Login Form
+  // IF NOT LOGGED IN: Render Official BPN Login Gate
   if (!isAuthorized) {
     return (
       <div className="max-w-md mx-auto px-4 py-20 space-y-6">
-        <div className="p-8 rounded-2xl glass-panel border border-monad-500/30 space-y-6">
+        <div className="p-8 rounded-2xl glass-panel border border-emerald-500/30 space-y-6">
           <div className="text-center space-y-2">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-monad-400 bg-monad-900/50 px-2.5 py-1 rounded">
-              {lang === 'id' ? 'Akses Khusus Panitia' : 'Restricted Committee Access'}
+            <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded">
+              {lang === 'id' ? 'Portal Petugas Pertanahan' : 'Restricted Land Registry Access'}
             </span>
             <h1 className="text-2xl font-bold text-white">
               {t('dash.auth_title')}
             </h1>
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <p className="text-xs text-gray-400">
               {t('dash.auth_desc')}
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4 text-xs font-mono">
-            <div className="space-y-1">
-              <label className="text-gray-300 block">
+          {authError && (
+            <div className="p-3 rounded-lg bg-red-500/15 border border-red-500/30 text-red-300 text-xs text-center font-mono">
+              {authError}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1 text-xs">
+              <label className="text-gray-300 font-medium block">
                 {t('dash.email_label')}
               </label>
               <input
                 type="text"
                 value={loginEmail}
-                onChange={(e) => {
-                  setLoginEmail(e.target.value);
-                  setAuthError('');
-                }}
-                placeholder="panitia@veridex.id"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white font-sans text-xs focus:outline-none focus:border-cyber-cyan transition-colors"
+                onChange={e => setLoginEmail(e.target.value)}
+                placeholder="bpn@veridex.id"
                 required
+                className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white placeholder-gray-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors font-mono"
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-gray-300 block">
+            <div className="space-y-1 text-xs">
+              <label className="text-gray-300 font-medium block">
                 {t('dash.pin_label')}
               </label>
               <input
                 type="password"
-                maxLength={6}
                 value={loginPin}
-                onChange={(e) => {
-                  setLoginPin(e.target.value);
-                  setAuthError('');
-                }}
-                placeholder="6-digit PIN"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white font-mono text-xs focus:outline-none focus:border-cyber-cyan transition-colors"
+                onChange={e => setLoginPin(e.target.value)}
+                placeholder="••••••"
                 required
+                className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white placeholder-gray-500 text-xs focus:outline-none focus:border-emerald-500 transition-colors font-mono tracking-widest"
               />
             </div>
 
-            {authError && (
-              <div className="p-2.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-sans">
-                {authError}
-              </div>
-            )}
-
             <button
               type="submit"
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-monad-600 to-monad-500 hover:from-monad-500 hover:to-cyber-cyan text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-monad-500/20 active:scale-98"
+              className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-500/20 active:scale-95"
             >
               {t('dash.login_btn')}
             </button>
           </form>
 
-          {/* Official Registered Committee Credentials Note */}
-          <div className="pt-4 border-t border-white/5 text-center">
-            <p className="text-[11px] text-gray-500 font-mono">
-              {t('dash.cred_hint')}
-            </p>
+          <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-[11px] text-emerald-300/80 font-mono text-center">
+            {t('dash.cred_hint')}
           </div>
         </div>
       </div>
     );
   }
 
-  // IF AUTHORIZED: Full Organizer Studio
+  // LOGGED IN: Full Land Registry Dashboard
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-      {/* Top Banner / Event Config + Security Status */}
-      <div className="p-6 rounded-2xl glass-panel space-y-4">
-        {/* Organizer Verification Status & Logout Button */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/5 text-xs font-mono">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+      {/* Top Header & Status Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl glass-panel border border-emerald-500/30">
+        <div className="space-y-1">
           <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-cyber-emerald" />
-            <span className="text-cyber-emerald font-semibold">{t('dash.auth_badge')}</span>
-            <span className="text-gray-500">•</span>
-            <span className="text-gray-300">{t('dash.committee_name')}</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-xs font-mono font-semibold text-emerald-400">
+              {t('dash.auth_badge')}
+            </span>
           </div>
-
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs transition-colors"
-          >
-            {t('dash.logout_btn')}
-          </button>
+          <h2 className="text-xl font-bold text-white">
+            {registryName}
+          </h2>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-              {t('dash.title')}
-            </h1>
-            <p className="text-xs text-gray-400 mt-0.5">
-              {t('dash.subtitle')}
-            </p>
-          </div>
-
-          <div className="flex items-center space-x-3 text-xs font-mono">
-            <span className="text-gray-400">{t('dash.event_label')}</span>
-            <input
-              type="text"
-              value={eventName}
-              onChange={(e) => setEventName(e.target.value)}
-              className="px-3.5 py-2 rounded-xl bg-black/50 border border-monad-500/40 text-white text-xs font-sans font-semibold focus:outline-none focus:border-cyber-cyan transition-colors"
-            />
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="px-3.5 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-mono transition-colors self-start sm:self-auto"
+        >
+          {t('dash.logout_btn')}
+        </button>
       </div>
 
-      {/* Grid: Component A (Raw Data Ingestion) & Component B (Structured Data Table) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Component A: Raw Text Ingestion */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="p-6 rounded-2xl glass-panel space-y-4 h-full flex flex-col justify-between">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-white text-base">{t('dash.ingest_title')}</h3>
-                <span className="text-[10px] font-mono text-monad-300 bg-monad-900/60 px-2 py-0.5 rounded border border-monad-500/20">
-                  AI Extraction
-                </span>
-              </div>
-              <p className="text-xs text-gray-400 leading-relaxed">
+      {/* Issuance Section */}
+      <div className="p-8 rounded-2xl glass-panel border border-emerald-500/30 space-y-8">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-extrabold text-white">
+            {t('dash.title')}
+          </h1>
+          <p className="text-xs text-gray-400">
+            {t('dash.subtitle')}
+          </p>
+        </div>
+
+        {/* Registry Batch Name */}
+        <div className="space-y-2">
+          <label className="text-xs text-gray-300 font-semibold block">
+            {t('dash.registry_label')}
+          </label>
+          <input
+            type="text"
+            value={registryName}
+            onChange={e => setRegistryName(e.target.value)}
+            className="w-full sm:w-96 px-3.5 py-2 rounded-xl bg-black/60 border border-white/10 text-white text-xs focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+
+        {/* Step 1: Raw Ingest with AI Extraction */}
+        <div className="space-y-3 pt-2 border-t border-white/5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 className="text-sm font-bold text-white">
+                1. {t('dash.ingest_title')}
+              </h3>
+              <p className="text-xs text-gray-400">
                 {t('dash.ingest_desc')}
               </p>
-
-              {/* Sample Quick Fill */}
-              <button
-                type="button"
-                onClick={() =>
-                  setRawText(
-                    'budi (budi@gmail.com) hadir bang, terus ada andi@mail.com namanya andi\nsiti.dev@monad.xyz (Siti Rahma) juga ikut\nDavid - david@gmail.com'
-                  )
-                }
-                className="text-[11px] text-cyber-cyan hover:underline font-mono inline-block"
-              >
-                {t('dash.ingest_sample')}
-              </button>
-
-              <textarea
-                rows={9}
-                value={rawText}
-                onChange={(e) => setRawText(e.target.value)}
-                placeholder="Paste attendee text here..."
-                className="w-full p-3.5 rounded-xl bg-black/60 border border-white/10 text-gray-200 text-xs font-mono focus:outline-none focus:border-monad-500 transition-colors resize-none"
-              />
             </div>
 
             <button
               type="button"
+              onClick={() =>
+                setRawText(
+                  '1. Budi Santoso | NIK: 3201010101900001 | Jl. Sudirman No. 45, Kebayoran Baru, Jakarta Selatan | 500 m² | SHM\n' +
+                  '2. Siti Aminah | NIK: 3201020202880003 | Jl. TB Simatupang No. 88, Cilandak, Jakarta Selatan | 720 m² | SHGB\n' +
+                  '3. Hendra Wijaya | NIK: 3171030303920005 | Jl. Senopati No. 19, Kebayoran Baru, Jakarta Selatan | 350 m² | SHM\n' +
+                  '4. Maya Safitri | NIK: 3201030404950007 | Jl. Rasuna Said Kav. 8, Setiabudi, Jakarta Selatan | 420 m² | SHM'
+                )
+              }
+              className="text-xs text-emerald-400 hover:text-emerald-300 font-mono transition-colors self-start sm:self-auto"
+            >
+              {t('dash.ingest_sample')}
+            </button>
+          </div>
+
+          <textarea
+            rows={4}
+            value={rawText}
+            onChange={e => setRawText(e.target.value)}
+            placeholder="Ketik atau tempel data tanah..."
+            className="w-full p-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-mono focus:outline-none focus:border-emerald-500"
+          />
+
+          <div className="flex justify-end">
+            <button
+              type="button"
               onClick={handleExtract}
-              disabled={isExtracting || !rawText.trim()}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-monad-600 to-monad-500 hover:from-monad-500 hover:to-cyber-cyan text-white text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 shadow-md shadow-monad-500/25 active:scale-98"
+              disabled={isExtracting}
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold font-mono transition-all disabled:opacity-50"
             >
               {isExtracting ? t('dash.extracting_btn') : t('dash.extract_btn')}
             </button>
           </div>
         </div>
 
-        {/* Component B: Structured Data Table */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="p-6 rounded-2xl glass-panel space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-white text-base">{t('dash.preview_title')}</h3>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-monad-500/20 text-monad-300 font-mono">
-                  {participants.length} {t('dash.preview_count')}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleAddRow}
-                  className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-medium transition-colors"
-                >
-                  {t('dash.add_row_btn')}
-                </button>
-              </div>
-            </div>
+        {/* Step 2: Land Assets Preview Table */}
+        <div className="space-y-4 pt-4 border-t border-white/5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-white">
+              2. {t('dash.preview_title')}
+            </h3>
+            <span className="text-xs font-mono text-emerald-400">
+              {assets.length} {t('dash.preview_count')}
+            </span>
+          </div>
 
-            {/* Table */}
-            <div className="overflow-x-auto max-h-[290px] border border-white/5 rounded-xl">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-black/40 text-gray-400 uppercase font-mono text-[10px] sticky top-0">
-                  <tr>
-                    <th className="py-2.5 px-3">#</th>
-                    <th className="py-2.5 px-3">Nama Lengkap</th>
-                    <th className="py-2.5 px-3">Alamat Email</th>
-                    <th className="py-2.5 px-3 text-right">Aksi</th>
+          <div className="overflow-x-auto rounded-xl border border-white/10">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-black/60 text-gray-400 font-mono uppercase text-[10px] border-b border-white/10">
+                <tr>
+                  <th className="py-2.5 px-3">Nama Pemilik</th>
+                  <th className="py-2.5 px-3">NIK / Identitas</th>
+                  <th className="py-2.5 px-3">Jenis Hak</th>
+                  <th className="py-2.5 px-3">Luas Tanah</th>
+                  <th className="py-2.5 px-3">Lokasi / Alamat Tanah</th>
+                  <th className="py-2.5 px-3 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {assets.map((asset) => (
+                  <tr key={asset.id} className="hover:bg-white/[0.02]">
+                    <td className="py-2 px-3">
+                      <input
+                        type="text"
+                        value={asset.owner_name}
+                        onChange={e => handleUpdateAsset(asset.id, 'owner_name', e.target.value)}
+                        placeholder="Nama Pemilik"
+                        className="w-full bg-transparent border-b border-transparent hover:border-white/20 focus:border-emerald-500 text-white py-1 outline-none font-medium"
+                      />
+                    </td>
+                    <td className="py-2 px-3">
+                      <input
+                        type="text"
+                        value={asset.owner_id}
+                        onChange={e => handleUpdateAsset(asset.id, 'owner_id', e.target.value)}
+                        placeholder="16 Digit NIK"
+                        className="w-full bg-transparent border-b border-transparent hover:border-white/20 focus:border-emerald-500 text-gray-300 py-1 outline-none font-mono text-[11px]"
+                      />
+                    </td>
+                    <td className="py-2 px-3">
+                      <select
+                        value={asset.land_type}
+                        onChange={e => handleUpdateAsset(asset.id, 'land_type', e.target.value)}
+                        className="bg-black/80 border border-white/10 text-emerald-300 font-mono text-xs rounded px-2 py-1 outline-none"
+                      >
+                        <option value="SHM">SHM (Hak Milik)</option>
+                        <option value="SHGB">SHGB (Guna Bangunan)</option>
+                        <option value="AJB">AJB (Akta Jual Beli)</option>
+                        <option value="HP">HP (Hak Pakai)</option>
+                      </select>
+                    </td>
+                    <td className="py-2 px-3">
+                      <input
+                        type="text"
+                        value={asset.land_area}
+                        onChange={e => handleUpdateAsset(asset.id, 'land_area', e.target.value)}
+                        placeholder="e.g. 500 m²"
+                        className="w-28 bg-transparent border-b border-transparent hover:border-white/20 focus:border-emerald-500 text-cyber-cyan py-1 outline-none font-mono text-[11px]"
+                      />
+                    </td>
+                    <td className="py-2 px-3">
+                      <input
+                        type="text"
+                        value={asset.land_location}
+                        onChange={e => handleUpdateAsset(asset.id, 'land_location', e.target.value)}
+                        placeholder="Alamat Lengkap Tanah"
+                        className="w-full bg-transparent border-b border-transparent hover:border-white/20 focus:border-emerald-500 text-gray-300 py-1 outline-none text-xs"
+                      />
+                    </td>
+                    <td className="py-2 px-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveAsset(asset.id)}
+                        className="text-red-400 hover:text-red-300 text-xs px-2 py-1"
+                      >
+                        ✕
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5 text-gray-300 font-mono">
-                  {participants.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-8 text-center text-gray-500 text-xs font-sans">
-                        Belum ada peserta.
-                      </td>
-                    </tr>
-                  ) : (
-                    participants.map((p, idx) => (
-                      <tr key={p.id} className="hover:bg-white/5 transition-colors">
-                        <td className="py-2 px-3 text-gray-500">{idx + 1}</td>
-                        <td className="py-2 px-3">
-                          <input
-                            type="text"
-                            value={p.name}
-                            onChange={(e) => handleUpdateParticipant(p.id, 'name', e.target.value)}
-                            placeholder="Name"
-                            className="w-full bg-transparent border-b border-transparent hover:border-gray-600 focus:border-cyber-cyan text-white focus:outline-none px-1 py-0.5 text-xs font-sans"
-                          />
-                        </td>
-                        <td className="py-2 px-3">
-                          <input
-                            type="email"
-                            value={p.email}
-                            onChange={(e) => handleUpdateParticipant(p.id, 'email', e.target.value)}
-                            placeholder="Email"
-                            className="w-full bg-transparent border-b border-transparent hover:border-gray-600 focus:border-cyber-cyan text-gray-300 focus:outline-none px-1 py-0.5 text-xs font-mono"
-                          />
-                        </td>
-                        <td className="py-2 px-3 text-right">
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveParticipant(p.id)}
-                            className="p-1 hover:text-red-400 text-gray-500 transition-colors text-xs"
-                          >
-                            Hapus
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-            {/* Batch Issuance Button */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleAddRow}
+              className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-mono transition-colors"
+            >
+              + {t('dash.add_row_btn')}
+            </button>
+
             <button
               type="button"
               onClick={handleIssueCertificates}
-              disabled={isIssuing || participants.length === 0}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyber-emerald via-monad-500 to-cyber-cyan hover:brightness-110 text-black font-extrabold text-xs uppercase tracking-wide transition-all shadow-lg shadow-cyber-emerald/20 active:scale-98 disabled:opacity-50"
+              disabled={isIssuing || assets.length === 0}
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-monad-600 hover:brightness-110 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-emerald-500/25 disabled:opacity-50"
             >
               {isIssuing ? t('dash.issuing_btn') : t('dash.issue_btn')}
             </button>
           </div>
         </div>
+
+        {/* Issuance Live Pipeline Progress Indicator */}
+        {isIssuing && (
+          <div className="p-6 rounded-2xl bg-black/60 border border-emerald-500/40 space-y-4">
+            <h4 className="font-bold text-white text-sm">
+              {lang === 'id' ? 'Proses Tokenisasi & Penerbitan Sertifikat ke Monad' : 'Tokenization & Issuance Pipeline on Monad'}
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-[11px] font-mono">
+              <div className={`p-2.5 rounded-lg border ${issueStep >= 1 ? 'border-emerald-400 bg-emerald-950/40 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
+                1. Validasi Pemilik
+              </div>
+              <div className={`p-2.5 rounded-lg border ${issueStep >= 2 ? 'border-emerald-400 bg-emerald-950/40 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
+                2. Render Sertifikat PDF
+              </div>
+              <div className={`p-2.5 rounded-lg border ${issueStep >= 3 ? 'border-emerald-400 bg-emerald-950/40 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
+                3. Hash SHA-256
+              </div>
+              <div className={`p-2.5 rounded-lg border ${issueStep >= 4 ? 'border-emerald-400 bg-emerald-950/40 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
+                4. Merkle Tree Batch
+              </div>
+              <div className={`p-2.5 rounded-lg border ${issueStep >= 5 ? 'border-emerald-400 bg-emerald-950/40 text-emerald-300' : 'border-white/5 text-gray-500'}`}>
+                5. On-Chain Monad Tx
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Issuance Success Result Modal/Card */}
+        {issueResult && (
+          <div className="p-6 rounded-2xl bg-emerald-950/30 border border-emerald-500/60 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-emerald-400">
+                PENERBITAN BATCH SUKSES ON-CHAIN
+              </span>
+              <span className="text-xs font-mono text-gray-400">
+                Batch ID: {issueResult.batch_id}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
+              <div className="p-3 rounded-lg bg-black/40 border border-white/5">
+                <span className="text-gray-500 block text-[10px]">Merkle Root Monad:</span>
+                <span className="text-cyber-cyan break-all text-[11px]">{issueResult.merkle_root}</span>
+              </div>
+              <div className="p-3 rounded-lg bg-black/40 border border-white/5 sm:col-span-2">
+                <span className="text-gray-500 block text-[10px]">Monad Tx Hash:</span>
+                <a
+                  href={`https://testnet.monadexplorer.com/tx/${issueResult.tx_hash}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-emerald-400 hover:underline break-all text-[11px]"
+                >
+                  {issueResult.tx_hash}
+                </a>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <div className="text-xs font-semibold text-white mb-2">
+                Unduh Sertifikat Tanah Hasil Penerbitan:
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {issueResult.assets.map((asset, i) => (
+                  <a
+                    key={i}
+                    href={asset.download_url}
+                    className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-mono transition-colors"
+                  >
+                    📄 {asset.owner_name} ({asset.land_type})
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Loading Modal with Multi-step Progress */}
-      {isIssuing && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-lg p-6 sm:p-8 rounded-2xl glass-panel border border-monad-500/50 space-y-6 glow-purple">
-            <div className="text-center space-y-2">
-              <h3 className="text-xl font-bold text-white">Memproses Batch ke Monad</h3>
-              <p className="text-xs text-gray-400 font-mono">Eksekusi Kriptografi Kecepatan Tinggi</p>
-            </div>
-
-            {/* Steps Progress List */}
-            <div className="space-y-3 font-mono text-xs">
-              <div className={`p-3 rounded-lg border ${issueStep >= 1 ? 'border-cyber-cyan/40 bg-cyber-cyan/5 text-cyber-cyan' : 'border-white/5 text-gray-500'}`}>
-                1. Pembuatan Dokumen PDF Sertifikat
-              </div>
-              <div className={`p-3 rounded-lg border ${issueStep >= 2 ? 'border-cyber-cyan/40 bg-cyber-cyan/5 text-cyber-cyan' : 'border-white/5 text-gray-500'}`}>
-                2. Kalkulasi Sidik Jari Kriptografis (SHA-256)
-              </div>
-              <div className={`p-3 rounded-lg border ${issueStep >= 3 ? 'border-cyber-cyan/40 bg-cyber-cyan/5 text-cyber-cyan' : 'border-white/5 text-gray-500'}`}>
-                3. Penyusunan Struktur Merkle Tree
-              </div>
-              <div className={`p-3 rounded-lg border ${issueStep >= 4 ? 'border-monad-400/40 bg-monad-900/30 text-monad-300' : 'border-white/5 text-gray-500'}`}>
-                4. Pengiriman Merkle Root ke Smart Contract Monad
-              </div>
-              <div className={`p-3 rounded-lg border ${issueStep >= 5 ? 'border-cyber-emerald/40 bg-cyber-emerald/10 text-cyber-emerald' : 'border-white/5 text-gray-500'}`}>
-                5. Batch Berhasil Di-Commit ke Monad Testnet!
-              </div>
-            </div>
-
-            {issueStep === 5 && (
-              <button
-                type="button"
-                onClick={() => setIsIssuing(false)}
-                className="w-full py-2.5 rounded-xl bg-cyber-emerald text-black font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all"
-              >
-                Tutup &amp; Lihat Hasil Batch
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Issuance Success Result Card */}
-      {issueResult && (
-        <div className="p-6 rounded-2xl bg-gradient-to-br from-monad-950/80 to-surface border border-cyber-emerald/40 space-y-4 glow-emerald">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <h3 className="font-extrabold text-white text-lg">Batch Berhasil Di-Commit ke Monad!</h3>
-            <span className="text-xs font-mono text-cyber-emerald bg-cyber-emerald/10 px-2.5 py-1 rounded-md border border-cyber-emerald/30">
-              Batch ID: {issueResult.batch_id}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
-            <div className="p-3 rounded-lg bg-black/40 border border-white/5 space-y-1">
-              <span className="text-gray-500 block text-[10px]">TRANSAKSI MONAD</span>
-              <a
-                href={`https://testnet.monadexplorer.com/tx/${issueResult.tx_hash}`}
-                target="_blank"
-                rel="noreferrer"
-                className="text-cyber-cyan hover:underline truncate block"
-              >
-                {issueResult.tx_hash}
-              </a>
-            </div>
-            <div className="p-3 rounded-lg bg-black/40 border border-white/5 space-y-1">
-              <span className="text-gray-500 block text-[10px]">MERKLE ROOT</span>
-              <span className="text-monad-300 truncate block">{issueResult.merkle_root}</span>
-            </div>
-            <div className="p-3 rounded-lg bg-black/40 border border-white/5 space-y-1">
-              <span className="text-gray-500 block text-[10px]">NOMOR BLOK</span>
-              <span className="text-gray-200 block">#{issueResult.block_number}</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Certificate Registry Table & Revocation Center */}
-      <div className="p-6 rounded-2xl glass-panel space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h3 className="font-bold text-white text-base">{t('dash.registry_title')}</h3>
-            <p className="text-xs text-gray-400 mt-0.5">
-              {t('dash.registry_desc')}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={fetchHistory}
-            className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-mono transition-colors self-start sm:self-auto"
-          >
-            {historyLoading ? 'Memuat...' : 'Refresh'}
-          </button>
+      {/* Historical List of Land Certificates & Revocation */}
+      <div className="p-8 rounded-2xl glass-panel border border-emerald-500/20 space-y-6">
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold text-white">
+            {t('dash.history_title')}
+          </h2>
+          <p className="text-xs text-gray-400">
+            {t('dash.history_desc')}
+          </p>
         </div>
 
-        <div className="overflow-x-auto border border-white/5 rounded-xl">
-          <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-black/50 text-gray-400 text-[10px] uppercase">
-              <tr>
-                <th className="py-3 px-3">Serial</th>
-                <th className="py-3 px-3">Nama &amp; Email</th>
-                <th className="py-3 px-3">Sidik Jari SHA-256</th>
-                <th className="py-3 px-3">Status</th>
-                <th className="py-3 px-3 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5 text-gray-300">
-              {issuedHistory.length === 0 ? (
+        {historyLoading ? (
+          <div className="py-8 text-center text-xs text-gray-400 font-mono">
+            Memuat data sertifikat...
+          </div>
+        ) : issuedHistory.length === 0 ? (
+          <div className="py-8 text-center text-xs text-gray-400 font-mono">
+            Belum ada sertifikat tanah yang diterbitkan.
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-white/10">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-black/60 text-gray-400 font-mono uppercase text-[10px] border-b border-white/10">
                 <tr>
-                  <td colSpan={5} className="py-6 text-center text-gray-500 text-xs font-sans">
-                    Belum ada sertifikat terbit.
-                  </td>
+                  <th className="py-2.5 px-3">Pemilik &amp; NIK</th>
+                  <th className="py-2.5 px-3">Jenis &amp; No. Sertifikat</th>
+                  <th className="py-2.5 px-3">Lokasi / Luas</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3">Hash Dokumen</th>
+                  <th className="py-2.5 px-3 text-right">Aksi</th>
                 </tr>
-              ) : (
-                issuedHistory.map((item) => (
-                  <tr key={item.id} className="hover:bg-white/5 transition-colors">
-                    <td className="py-2.5 px-3 text-white font-semibold">{item.serial_number || 'VRX-0001'}</td>
-                    <td className="py-2.5 px-3 font-sans">
-                      <div className="text-xs text-white font-medium">{item.name}</div>
-                      <div className="text-[10px] text-gray-500 font-mono">{item.email}</div>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {issuedHistory.map((item) => (
+                  <tr key={item.id || item.pdf_hash} className="hover:bg-white/[0.02]">
+                    <td className="py-2.5 px-3">
+                      <div className="font-semibold text-white">{item.owner_name || item.name}</div>
+                      <div className="text-[11px] text-gray-400 font-mono">{item.owner_id || item.email}</div>
                     </td>
-                    <td className="py-2.5 px-3 text-[11px] text-gray-400" title={item.pdf_hash}>
-                      {item.pdf_hash.slice(0, 10)}...{item.pdf_hash.slice(-8)}
+                    <td className="py-2.5 px-3 font-mono">
+                      <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/30 text-[10px] mr-1.5 font-bold">
+                        {item.land_type || 'SHM'}
+                      </span>
+                      <span className="text-gray-300 text-xs">{item.certificate_number || 'SHM-01234/KB'}</span>
+                    </td>
+                    <td className="py-2.5 px-3">
+                      <div className="text-gray-300 truncate max-w-xs">{item.land_location || 'Jakarta Selatan'}</div>
+                      <div className="text-[11px] text-cyber-cyan font-mono">{item.land_area || '500 m²'}</div>
                     </td>
                     <td className="py-2.5 px-3">
                       {item.status === 'VALID' ? (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-cyber-emerald/15 text-cyber-emerald border border-cyber-emerald/30">
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono text-[10px] font-bold">
                           VALID
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/15 text-red-400 border border-red-500/30">
-                          REVOKED
+                        <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 font-mono text-[10px] font-bold">
+                          DICABUT
                         </span>
                       )}
                     </td>
-                    <td className="py-2.5 px-3 text-right">
-                      <div className="flex items-center justify-end space-x-2">
-                        {/* Download Valid PDF */}
-                        <a
-                          href={`/api/certificates/${item.pdf_hash}`}
-                          className="px-2.5 py-1 rounded bg-monad-600/30 hover:bg-monad-600/50 text-cyber-cyan border border-monad-500/30 text-[11px] transition-colors"
-                        >
-                          Unduh PDF
-                        </a>
+                    <td className="py-2.5 px-3 font-mono text-[11px] text-gray-400">
+                      {item.pdf_hash ? `${item.pdf_hash.substring(0, 10)}...${item.pdf_hash.substring(58)}` : '-'}
+                    </td>
+                    <td className="py-2.5 px-3 text-right space-x-2">
+                      <a
+                        href={item.download_url || `/api/certificates/${item.pdf_hash}`}
+                        className="inline-block px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-emerald-300 font-mono text-[11px] transition-colors"
+                      >
+                        Unduh PDF
+                      </a>
 
-                        {/* Download Tampered PDF for Testing */}
-                        <a
-                          href={`/api/certificates/${item.pdf_hash}/tampered`}
-                          className="px-2.5 py-1 rounded bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 text-[11px] transition-colors"
+                      {item.status === 'VALID' && (
+                        <button
+                          type="button"
+                          onClick={() => handleRevoke(item.pdf_hash)}
+                          disabled={revokingHash === item.pdf_hash}
+                          className="px-2.5 py-1 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 font-mono text-[11px] transition-colors disabled:opacity-50"
                         >
-                          Salinan Tes
-                        </a>
-
-                        {/* Revoke Action */}
-                        {item.status === 'VALID' && (
-                          <button
-                            type="button"
-                            onClick={() => handleRevoke(item.pdf_hash)}
-                            disabled={revokingHash === item.pdf_hash}
-                            className="px-2.5 py-1 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-[11px] transition-colors disabled:opacity-50"
-                          >
-                            Cabut
-                          </button>
-                        )}
-                      </div>
+                          {revokingHash === item.pdf_hash ? 'Mencabut...' : 'Cabut'}
+                        </button>
+                      )}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

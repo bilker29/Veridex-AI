@@ -1,16 +1,20 @@
-export interface Participant {
+export interface LandAsset {
   id: string;
-  event_id: string;
-  name: string;
-  email: string;
+  registry_id: string;
+  owner_name: string;
+  owner_id: string; // NIK or KTP number
+  land_location: string;
+  land_area: string; // e.g. "500 m²"
+  land_type: string; // SHM, SHGB, AJB, etc.
+  certificate_number: string;
   pdf_hash: string;
   merkle_proof: string[];
-  status: 'VALID' | 'REVOKED';
+  status: 'VALID' | 'REVOKED' | 'TRANSFERRED';
   created_at?: string;
   serial_number?: string;
 }
 
-export interface EventBatch {
+export interface RegistryBatch {
   id: string;
   name: string;
   batch_id: string;
@@ -18,19 +22,25 @@ export interface EventBatch {
   tx_hash: string;
   block_number?: number;
   created_at: string;
-  participant_count: number;
+  asset_count: number;
 }
 
-export interface ExtractedParticipant {
-  name: string;
-  email: string;
+export interface ExtractedLandData {
+  owner_name: string;
+  owner_id: string;
+  land_location: string;
+  land_area: string;
+  land_type: string;
 }
 
 export interface IssueRequestBody {
-  event_name: string;
-  participants: Array<{
-    name: string;
-    email: string;
+  registry_name: string;
+  assets: Array<{
+    owner_name: string;
+    owner_id: string;
+    land_location: string;
+    land_area: string;
+    land_type: string;
   }>;
 }
 
@@ -41,9 +51,13 @@ export interface VerifyRequestBody {
 export interface VerifySuccessResponse {
   success: true;
   status: 'VERIFIED';
-  participant_name: string;
-  participant_email: string;
-  event_name: string;
+  owner_name: string;
+  owner_id: string;
+  land_location: string;
+  land_area: string;
+  land_type: string;
+  certificate_number: string;
+  registry_name: string;
   batch_id: string;
   merkle_root: string;
   merkle_proof: string[];

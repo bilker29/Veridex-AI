@@ -12,23 +12,27 @@ export async function GET(
     let pdfBuffer = VeridexDb.getPdfBuffer(cleanHash);
 
     if (!pdfBuffer) {
-      const participant = VeridexDb.getParticipantByHash(cleanHash);
-      if (participant) {
-        const event = VeridexDb.getEventById(participant.event_id);
+      const asset = VeridexDb.getAssetByHash(cleanHash);
+      if (asset) {
+        const registry = VeridexDb.getRegistryById(asset.registry_id);
         const generated = await VeridexPdfGenerator.generateCertificate({
-          recipientName: participant.name,
-          recipientEmail: participant.email,
-          eventName: event?.name || 'Monad Blitz Hackathon 2026',
-          issueDate: participant.created_at ? new Date(participant.created_at).toLocaleDateString() : 'October 24, 2026',
-          serialNumber: participant.serial_number || 'VRX-2026-0001',
-          batchId: event?.batch_id,
+          ownerName: asset.owner_name,
+          ownerId: asset.owner_id,
+          landLocation: asset.land_location,
+          landArea: asset.land_area,
+          landType: asset.land_type,
+          certificateNumber: asset.certificate_number,
+          registryName: registry?.name || 'Kantor Pertanahan BPN',
+          issueDate: asset.created_at ? new Date(asset.created_at).toLocaleDateString('id-ID') : '24 Oktober 2026',
+          serialNumber: asset.serial_number || 'VRX-LAND-0001',
+          batchId: registry?.batch_id,
         });
         pdfBuffer = generated.pdfBytes;
       }
     }
 
     if (!pdfBuffer) {
-      return new NextResponse('Certificate file not found', { status: 404 });
+      return new NextResponse('Dokumen sertifikat tanah tidak ditemukan', { status: 404 });
     }
 
     // Tamper the PDF buffer by flipping bits in a content byte
@@ -38,12 +42,12 @@ export async function GET(
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="Veridex_TAMPERED_FORGERY_TEST.pdf"',
+        'Content-Disposition': 'attachment; filename="Sertifikat_Tanah_PALSU_REKAYASA_TEST.pdf"',
         'Cache-Control': 'no-store',
       },
     });
   } catch (err: any) {
-    console.error('Error generating tampered PDF:', err);
+    console.error('Error generating tampered land PDF:', err);
     return new NextResponse('Internal error', { status: 500 });
   }
 }

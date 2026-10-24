@@ -1,10 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { EventBatch, Participant } from './types';
+import { RegistryBatch, LandAsset } from './types';
+import { VeridexMerkle } from './merkle';
 
 export interface StoredData {
-  events: EventBatch[];
-  participants: Participant[];
+  registries: RegistryBatch[];
+  assets: LandAsset[];
   pdfStore: Record<string, string>; // pdf_hash => base64 PDF
 }
 
@@ -13,8 +14,8 @@ const DB_FILE = path.join(DATA_DIR, 'db.json');
 
 // In-memory singleton state
 let memoryDb: StoredData = {
-  events: [],
-  participants: [],
+  registries: [],
+  assets: [],
   pdfStore: {},
 };
 
@@ -38,7 +39,7 @@ function loadFromDisk(): StoredData {
   } catch (err) {
     console.error('Could not read db.json, using in-memory state:', err);
   }
-  return { events: [], participants: [], pdfStore: {} };
+  return { registries: [], assets: [], pdfStore: {} };
 }
 
 function saveToDisk(data: StoredData) {
@@ -53,49 +54,63 @@ function saveToDisk(data: StoredData) {
 // Initialize state
 memoryDb = loadFromDisk();
 
-// Auto-seed sample event from PRD if database is empty
-if (memoryDb.events.length === 0) {
-  const sampleEventId = 'evt-monad-blitz-2026';
-  const sampleBatchId = 'EVT-MONAD-01';
-  const sampleRoot = '0x9d45e036e088f11ec4e50eb95b5ca49b5c21966a01dfb00eebe3e5b3f68051a8';
+const a1Hash = '0x7e5c9b2b5120a1c6a287955ad0e2168f44ff530372df0d9f48512140d046c823';
+const a2Hash = '0x3a4b5c6d7e8f90123456789abcdef0123456789abcdef0123456789abcdef012';
+const seedTree = VeridexMerkle.buildTree([a1Hash, a2Hash]);
+const correctSampleRoot = seedTree.root;
+
+// Auto-seed or repair sample land registry with mathematically authentic Merkle Root
+const sampleRegistry = memoryDb.registries.find(r => r.id === 'reg-bpn-jakarta-2026');
+if (!sampleRegistry || memoryDb.assets.length === 0 || sampleRegistry.merkle_root !== correctSampleRoot) {
+  const sampleRegistryId = 'reg-bpn-jakarta-2026';
+  const sampleBatchId = 'BPN-MONAD-01';
   const sampleTx = '0x6e2c39178ad3ff49c6cb4931a9805566cf2eaeb7b68676d8b9ec7ad316df9845';
 
-  const p1Hash = '0x7e5c9b2b5120a1c6a287955ad0e2168f44ff530372df0d9f48512140d046c823';
-  const p2Hash = '0x3a4b5c6d7e8f90123456789abcdef0123456789abcdef0123456789abcdef012';
+  // Filter out any stale seed registry
+  memoryDb.registries = memoryDb.registries.filter(r => r.id !== sampleRegistryId);
+  memoryDb.assets = memoryDb.assets.filter(a => a.registry_id !== sampleRegistryId);
 
-  memoryDb.events.push({
-    id: sampleEventId,
-    name: 'Monad Blitz Hackathon 2026',
+  memoryDb.registries.unshift({
+    id: sampleRegistryId,
+    name: 'BPN Jakarta Selatan - Batch 2026',
     batch_id: sampleBatchId,
-    merkle_root: sampleRoot,
+    merkle_root: correctSampleRoot,
     tx_hash: sampleTx,
     block_number: 28491024,
     created_at: new Date().toISOString(),
-    participant_count: 2,
+    asset_count: 2,
   });
 
-  memoryDb.participants.push(
+  memoryDb.assets.unshift(
     {
-      id: 'p-seed-001',
-      event_id: sampleEventId,
-      name: 'Budi Santoso',
-      email: 'budi@gmail.com',
-      pdf_hash: p1Hash,
-      merkle_proof: [p2Hash],
+      id: 'a-seed-001',
+      registry_id: sampleRegistryId,
+      owner_name: 'Budi Santoso',
+      owner_id: '3201010101900001',
+      land_location: 'Jl. Sudirman No. 45, Kebayoran Baru, Jakarta Selatan',
+      land_area: '500 m²',
+      land_type: 'SHM',
+      certificate_number: 'SHM-01234/KB',
+      pdf_hash: a1Hash,
+      merkle_proof: seedTree.getProof(a1Hash),
       status: 'VALID',
       created_at: new Date().toISOString(),
-      serial_number: 'VRX-2026-0001',
+      serial_number: 'VRX-LAND-0001',
     },
     {
-      id: 'p-seed-002',
-      event_id: sampleEventId,
-      name: 'Andi Pratama',
-      email: 'andi@mail.com',
-      pdf_hash: p2Hash,
-      merkle_proof: [p1Hash],
+      id: 'a-seed-002',
+      registry_id: sampleRegistryId,
+      owner_name: 'Andi Pratama',
+      owner_id: '3201020202850002',
+      land_location: 'Jl. Gatot Subroto Kav. 12, Setiabudi, Jakarta Selatan',
+      land_area: '350 m²',
+      land_type: 'SHGB',
+      certificate_number: 'SHGB-05678/SB',
+      pdf_hash: a2Hash,
+      merkle_proof: seedTree.getProof(a2Hash),
       status: 'VALID',
       created_at: new Date().toISOString(),
-      serial_number: 'VRX-2026-0002',
+      serial_number: 'VRX-LAND-0002',
     }
   );
 
@@ -103,46 +118,46 @@ if (memoryDb.events.length === 0) {
 }
 
 export class VeridexDb {
-  static getEvents(): EventBatch[] {
-    return memoryDb.events;
+  static getRegistries(): RegistryBatch[] {
+    return memoryDb.registries;
   }
 
-  static getEventById(id: string): EventBatch | undefined {
-    return memoryDb.events.find(e => e.id === id || e.batch_id === id);
+  static getRegistryById(id: string): RegistryBatch | undefined {
+    return memoryDb.registries.find(e => e.id === id || e.batch_id === id);
   }
 
-  static addEvent(event: EventBatch): EventBatch {
-    memoryDb.events.unshift(event);
+  static addRegistry(registry: RegistryBatch): RegistryBatch {
+    memoryDb.registries.unshift(registry);
     saveToDisk(memoryDb);
-    return event;
+    return registry;
   }
 
-  static getParticipants(eventId?: string): Participant[] {
-    if (eventId) {
-      return memoryDb.participants.filter(p => p.event_id === eventId);
+  static getAssets(registryId?: string): LandAsset[] {
+    if (registryId) {
+      return memoryDb.assets.filter(a => a.registry_id === registryId);
     }
-    return memoryDb.participants;
+    return memoryDb.assets;
   }
 
-  static getParticipantByHash(hash: string): Participant | undefined {
+  static getAssetByHash(hash: string): LandAsset | undefined {
     const cleanHash = hash.toLowerCase();
-    return memoryDb.participants.find(p => p.pdf_hash.toLowerCase() === cleanHash);
+    return memoryDb.assets.find(a => a.pdf_hash.toLowerCase() === cleanHash);
   }
 
-  static getParticipantBySerial(serial: string): Participant | undefined {
-    return memoryDb.participants.find(p => p.serial_number === serial);
+  static getAssetBySerial(serial: string): LandAsset | undefined {
+    return memoryDb.assets.find(a => a.serial_number === serial);
   }
 
-  static addParticipants(newParticipants: Participant[]) {
-    memoryDb.participants.push(...newParticipants);
+  static addAssets(newAssets: LandAsset[]) {
+    memoryDb.assets.push(...newAssets);
     saveToDisk(memoryDb);
   }
 
-  static revokeParticipant(pdfHash: string): boolean {
+  static revokeAsset(pdfHash: string): boolean {
     const cleanHash = pdfHash.toLowerCase();
-    const p = memoryDb.participants.find(item => item.pdf_hash.toLowerCase() === cleanHash);
-    if (p) {
-      p.status = 'REVOKED';
+    const a = memoryDb.assets.find(item => item.pdf_hash.toLowerCase() === cleanHash);
+    if (a) {
+      a.status = 'REVOKED';
       saveToDisk(memoryDb);
       return true;
     }
